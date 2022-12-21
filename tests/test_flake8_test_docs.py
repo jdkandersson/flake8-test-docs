@@ -63,6 +63,18 @@ def test_():
             '''
 def test_():
     """
+    """
+''',
+            (
+                '3:4 the docstring should include "arrange" describing the test setup'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring arrange missing",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
 arrange"""
 ''',
             (
@@ -190,6 +202,19 @@ def test_():
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong many lines at docstring column offset",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    """
+''',
+            (
+                '3:4 the docstring should include "act" describing the test execution'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act missing",
         ),
         pytest.param(
             '''
