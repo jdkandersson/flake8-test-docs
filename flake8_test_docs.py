@@ -30,7 +30,7 @@ MISSING_MSG = (
     f"Docstring not defined on test function, {MORE_INFO_BASE}#fix-{MISSING_CODE.lower()}"
 )
 INVALID_CODE = f"{ERROR_CODE_PREFIX}002"
-INVALID_MSG = f"test function docstring not valid, {MORE_INFO_BASE}#fix-{INVALID_CODE.lower()}"
+INVALID_MSG_POSTFIX = f", {MORE_INFO_BASE}#fix-{INVALID_CODE.lower()}"
 TEST_DOCS_PATTERN_ARG_NAME = "--test-docs-pattern"
 TEST_DOCS_PATTERN_DEFAULT = "arrange/act/assert"
 TEST_DOCS_FILENAME_PATTERN_ARG_NAME = "--test-docs-filename-pattern"
@@ -52,17 +52,18 @@ def _cli_arg_name_to_attr(cli_arg_name: str) -> str:
     return cli_arg_name.lstrip("-").replace("-", "_")  # pragma: nocover
 
 
-def _docstring_problem_message(docstring: str) -> str | None:
+def _docstring_problem_message(docstring: str, col_offset: int) -> str | None:
     """Get the problem message for a docstring.
 
     Args:
         docstring: The docstring to check.
+        col_offset: The column offset where the docstring definition starts.
 
     Returns:
         The problem message explaining what is wrong with the docstring or None if it is valid.
     """
     if not docstring:
-        return INVALID_MSG
+        return f"the docstring should not be empty{INVALID_MSG_POSTFIX}"
     return None
 
 
@@ -116,7 +117,9 @@ class Visitor(ast.NodeVisitor):
             ):
                 self.problems.append(Problem(node.lineno, node.col_offset, MISSING_MSG))
             else:
-                if problem_message := _docstring_problem_message(node.body[0].value.value):
+                if problem_message := _docstring_problem_message(
+                    node.body[0].value.value, node.body[0].value.col_offset
+                ):
                     self.problems.append(
                         Problem(
                             node.body[0].value.lineno,
