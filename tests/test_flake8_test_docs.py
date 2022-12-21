@@ -76,6 +76,19 @@ arrange"""
             '''
 def test_():
     """
+
+arrange"""
+''',
+            (
+                "3:4 there should only be a single new line at the start of the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring arrange extra new line",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
     given"""
 ''',
             ('3:4 line 1 of the docstring should start with "arrange" ' f"{INVALID_MSG_POSTFIX}",),
@@ -105,6 +118,20 @@ def test_():
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange no description",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+
+line 3"""
+''',
+            (
+                "3:4 there should not be an empty line in the test setup description"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring arrange wrong newline in description",
         ),
         pytest.param(
             '''
@@ -163,6 +190,164 @@ def test_():
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong many lines at docstring column offset",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+
+act"""
+''',
+            (
+                "3:4 there should not be a new line between the end of the test setup description "
+                'and "act"'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act empty line before",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+act"""
+''',
+            (
+                "3:4 the indentation of line 2 of the docstring should match the indentation of "
+                "the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong column offset",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+        line 2
+act"""
+''',
+            (
+                "3:4 the indentation of line 3 of the docstring should match the indentation of "
+                "the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong column offset arrange multi line",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    when"""
+''',
+            ('3:4 line 2 of the docstring should start with "act" ' f"{INVALID_MSG_POSTFIX}",),
+            id="invalid docstring act wrong word",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act"""
+''',
+            (
+                '3:4 "act" should be followed by a colon (":") on line 2 of the docstring'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act missing colon",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act:"""
+''',
+            (
+                '3:4 "act:" should be followed by a description of the test execution on line 2 '
+                "of the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act no description",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+
+line 4"""
+''',
+            (
+                "3:4 there should not be an empty line in the test execution description"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong newline in description",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+line 3"""
+''',
+            (
+                "3:4 test execution description on line 3 should be indented by 4 more spaces than "
+                '"act:" on line 2'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong multiline at start",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+    line 3"""
+''',
+            (
+                "3:4 test execution description on line 3 should be indented by 4 more spaces than "
+                '"act:" on line 2'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong multiline at docstring column offset",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+        line 3
+line 4"""
+''',
+            (
+                "3:4 test execution description on line 4 should be indented by 4 more spaces than "
+                '"act:" on line 2'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong many lines at start",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+        line 3
+    line 4"""
+''',
+            (
+                "3:4 test setup description on line 4 should be indented by 4 more spaces than "
+                '"act:" on line 2'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong many lines at docstring column offset",
         ),
         pytest.param(
             '''
