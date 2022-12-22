@@ -38,6 +38,9 @@ TEST_DOCS_FILENAME_PATTERN_ARG_NAME = "--test-docs-filename-pattern"
 TEST_DOCS_FILENAME_PATTERN_DEFAULT = r"test_.*.py"
 TEST_DOCS_FUNCTION_PATTERN_ARG_NAME = "--test-docs-function-pattern"
 TEST_DOCS_FUNCTION_PATTERN_DEFAULT = r"test_.*"
+ARRANGE_DESCRIPTION = "setup"
+ACT_DESCRIPTION = "execution"
+ASSERT_DESCRIPTION = "checks"
 
 
 # Helper function for option management, tested in integration tests
@@ -251,7 +254,10 @@ def _docstring_problem_message(
 
     # Check arrange
     arrange_section = Section(
-        index=1, name=docs_pattern.arrange, description="setup", next_section_name=docs_pattern.act
+        index=1,
+        name=docs_pattern.arrange,
+        description=ARRANGE_DESCRIPTION,
+        next_section_name=docs_pattern.act,
     )
     arrange_start_problem = _check_section_start(
         line=docstring_lines[arrange_section.index],
@@ -275,7 +281,7 @@ def _docstring_problem_message(
     act_section = Section(
         index=act_index,
         name=docs_pattern.act,
-        description="execution",
+        description=ACT_DESCRIPTION,
         next_section_name=docs_pattern.assert_,
     )
     act_start_problem = _check_section_start(
@@ -295,6 +301,31 @@ def _docstring_problem_message(
     )
     if act_description_problem is not None:
         return act_description_problem
+
+    # Check assert
+    assert_section = Section(
+        index=assert_index,
+        name=docs_pattern.assert_,
+        description=ASSERT_DESCRIPTION,
+        next_section_name=None,
+    )
+    assert_start_problem = _check_section_start(
+        line=docstring_lines[assert_section.index],
+        section=assert_section,
+        col_offset=col_offset,
+        expected_section_prefix=expected_section_prefix,
+    )
+    if assert_start_problem is not None:
+        return assert_start_problem
+    assert_description_problem, _ = _check_section_remaining_description(
+        section=assert_section,
+        docstring_lines=docstring_lines,
+        expected_section_prefix=expected_section_prefix,
+        expected_description_prefix=expected_description_prefix,
+        expected_indentation=expected_indentation,
+    )
+    if assert_description_problem is not None:
+        return assert_description_problem
 
     return None
 
