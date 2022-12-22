@@ -1,11 +1,12 @@
 """A linter that checks test docstrings for the arrange/act/assert or given/when/then structure."""
 
+from functools import wraps
 import re
 import argparse
 import ast
 from pathlib import Path
 import sys
-from typing import Iterable, NamedTuple
+from typing import Iterable, NamedTuple, Callable
 
 if sys.version_info < (3, 11):  # pragma: nocover
     import toml as tomllib
@@ -66,6 +67,27 @@ class DocsPattern(NamedTuple):
     assert_: str
 
 
+def _append_invalid_msg_postfix(func: Callable[..., str | None]) -> Callable[..., str | None]:
+    """Add the invalid message postfix to the return value.
+
+    Args:
+        func: The function to wrap.
+
+    Returns:
+        The wrapped function.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        """Wrap the function."""
+        if (return_value := func(*args, **kwargs)) is None:
+            return None
+        return f"{return_value}{INVALID_MSG_POSTFIX}"
+
+    return wrapper
+
+
+@_append_invalid_msg_postfix
 def _docstring_problem_message(
     docstring: str, col_offset: int, docs_pattern: DocsPattern
 ) -> str | None:
@@ -80,29 +102,66 @@ def _docstring_problem_message(
         The problem message explaining what is wrong with the docstring or None if it is valid.
     """
     if not docstring:
-        return f"the docstring should not be empty{INVALID_MSG_POSTFIX}"
+        return "the docstring should not be empty"
 
     if not docstring.startswith("\n"):
-        return f"the docstring should start with an empty line{INVALID_MSG_POSTFIX}"
+        return "the docstring should start with an empty line"
 
     docstring_lines = docstring.splitlines()
+    expected_section_leading_whitespace = " " * col_offset
+    expected_indentation = 4
+    expected_description_leading_whitespace = (
+        f"{expected_section_leading_whitespace}{' ' * expected_indentation}"
+    )
 
     arrange_index = 1
     if not docstring_lines[arrange_index]:
-        return (
-            "there should only be a single new line at the start of the "
-            f"docstring{INVALID_MSG_POSTFIX}"
-        )
+        return "there should only be a single new line at the start of the docstring"
     if docs_pattern.arrange not in docstring_lines[arrange_index]:
         return (
             'the docstring should include "arrange" describing the test setup in line '
-            f"{arrange_index} of the docstring{INVALID_MSG_POSTFIX}"
+            f"{arrange_index} of the docstring"
         )
-    if not docstring_lines[arrange_index].startswith(" " * col_offset):
+    if not docstring_lines[arrange_index].startswith(expected_section_leading_whitespace):
         return (
             f"the indentation of line {arrange_index} of the docstring should match the "
-            f"indentation of the docstring{INVALID_MSG_POSTFIX}"
+            "indentation of the docstring"
         )
+    if not docstring_lines[arrange_index][col_offset:].startswith(docs_pattern.arrange):
+        return f'line {arrange_index} of the docstring should start with "{docs_pattern.arrange}"'
+    if not docstring_lines[arrange_index][col_offset + len(docs_pattern.arrange) :].startswith(
+        ":"
+    ):
+        return (
+            f'"{docs_pattern.arrange}" should be followed by a colon (":") on line '
+            f"{arrange_index} of the docstring"
+        )
+    if not docstring_lines[arrange_index][col_offset + len(docs_pattern.arrange) + 1 :]:
+        return (
+            f'"{docs_pattern.arrange}:" should be followed by a description of the test setup on '
+            f"line {arrange_index} of the docstring"
+        )
+    # Process remaining lines of arrange description
+    for arrange_line_index in range(arrange_index + 1, len(docstring_lines)):
+        arrange_line = docstring_lines[arrange_line_index]
+
+        # Detecting the start of the next section
+        if arrange_line.strip().startswith(docs_pattern.act):
+            break
+
+        if not arrange_line:
+            return (
+                "there should not be an empty line in the test setup description on line "
+                f"{arrange_line_index} of the docstring"
+            )
+
+        if not arrange_line.startswith(expected_description_leading_whitespace) or arrange_line[
+            len(expected_description_leading_whitespace) :
+        ].startswith(" "):
+            return (
+                f"test setup description on line {arrange_line_index} should be indented by "
+                f'{expected_indentation} more spaces than "arrange:" on line {arrange_index}'
+            )
 
     return None
 
