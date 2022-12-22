@@ -233,8 +233,8 @@ def test_():
     """
 ''',
             (
-                '3:4 the docstring should include "act" describing the test execution on line 2 '
-                "of the docstring"
+                f'3:4 the docstring should include "act" describing the test {ACT_DESCRIPTION} on '
+                "line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act missing",
@@ -291,8 +291,8 @@ def test_():
     when"""
 ''',
             (
-                '3:4 the docstring should include "act" describing the test execution on line 2 of'
-                " the docstring"
+                f'3:4 the docstring should include "act" describing the test {ACT_DESCRIPTION} on '
+                "line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong word",
@@ -318,8 +318,8 @@ def test_():
     act:"""
 ''',
             (
-                '3:4 "act:" should be followed by a description of the test execution on line 2 '
-                "of the docstring"
+                f'3:4 "act:" should be followed by a description of the test {ACT_DESCRIPTION} on '
+                "line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act no description",
@@ -334,8 +334,8 @@ def test_():
 line 4"""
 ''',
             (
-                "3:4 there should not be an empty line in the test execution description on line "
-                "3 of the docstring"
+                f"3:4 there should not be an empty line in the test {ACT_DESCRIPTION} description "
+                "on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong newline in description",
@@ -349,8 +349,8 @@ def test_():
 line 3"""
 ''',
             (
-                "3:4 test execution description on line 3 should be indented by 4 more spaces than "
-                '"act:" on line 2'
+                f"3:4 test {ACT_DESCRIPTION} description on line 3 should be indented by 4 more "
+                'spaces than "act:" on line 2'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong multiline at start",
@@ -365,8 +365,8 @@ def test_():
 line 4"""
 ''',
             (
-                "3:4 test execution description on line 4 should be indented by 4 more spaces than "
-                '"act:" on line 2'
+                f"3:4 test {ACT_DESCRIPTION} description on line 4 should be indented by 4 more "
+                'spaces than "act:" on line 2'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong many lines at start",
@@ -380,8 +380,8 @@ def test_():
     """
 ''',
             (
-                '3:4 the docstring should include "assert" describing the test checks on line 3 '
-                "of the docstring"
+                '3:4 the docstring should include "assert" describing the test '
+                f"{ASSERT_DESCRIPTION} on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert missing",
@@ -441,8 +441,8 @@ def test_():
     then"""
 ''',
             (
-                '3:4 the docstring should include "assert" describing the test checks on line 3 '
-                "of the docstring"
+                '3:4 the docstring should include "assert" describing the test '
+                f"{ASSERT_DESCRIPTION} on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong word",
@@ -470,8 +470,8 @@ def test_():
     assert:"""
 ''',
             (
-                '3:4 "assert:" should be followed by a description of the test checks on line 3 '
-                "of the docstring"
+                '3:4 "assert:" should be followed by a description of the test '
+                f"{ASSERT_DESCRIPTION} on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert no description",
@@ -487,8 +487,8 @@ def test_():
 line 5"""
 ''',
             (
-                "3:4 there should not be an empty line in the test checks description on line 4 of "
-                "the docstring"
+                f"3:4 there should not be an empty line in the test {ASSERT_DESCRIPTION} "
+                "description on line 4 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong newline in description",
