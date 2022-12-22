@@ -84,8 +84,8 @@ def test_():
     """
 ''',
             (
-                '3:4 the docstring should include "arrange" describing the test setup in line 1 of '
-                "the docstring"
+                '3:4 the docstring should include "arrange" describing the test setup on line 1 '
+                "of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange missing",
@@ -198,20 +198,6 @@ line 2"""
 def test_():
     """
     arrange: line 1
-    line 2"""
-''',
-            (
-                "3:4 test setup description on line 2 should be indented by 4 more spaces than "
-                '"arrange:" on line 1'
-                f"{INVALID_MSG_POSTFIX}",
-            ),
-            id="invalid docstring arrange wrong multiline at docstring column offset",
-        ),
-        pytest.param(
-            '''
-def test_():
-    """
-    arrange: line 1
             line 2"""
 ''',
             (
@@ -241,109 +227,100 @@ line 3"""
 def test_():
     """
     arrange: line 1
-        line 2
-    line 3"""
+    """
 ''',
             (
-                "3:4 test setup description on line 3 should be indented by 4 more spaces than "
-                '"arrange:" on line 1'
+                '3:4 the docstring should include "act" describing the test execution on line 2 '
+                "of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
-            id="invalid docstring arrange wrong many lines at docstring column offset",
+            id="invalid docstring act missing",
         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        #     """
-        # ''',
-        #             (
-        #                 '3:4 the docstring should include "act" describing the test execution'
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act missing",
-        #         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        # act"""
-        # ''',
-        #             (
-        #                 "3:4 there should not be a new line between the end of the test setup description "
-        #                 'and "act"'
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act empty line before",
-        #         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        # act"""
-        # ''',
-        #             (
-        #                 "3:4 the indentation of line 2 of the docstring should match the indentation of "
-        #                 "the docstring"
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act wrong column offset",
-        #         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        #         line 2
-        # act"""
-        # ''',
-        #             (
-        #                 "3:4 the indentation of line 3 of the docstring should match the indentation of "
-        #                 "the docstring"
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act wrong column offset arrange multi line",
-        #         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        #     when"""
-        # ''',
-        #             ('3:4 line 2 of the docstring should start with "act", ' f"{INVALID_MSG_POSTFIX}",),
-        #             id="invalid docstring act wrong word",
-        #         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        #     act"""
-        # ''',
-        #             (
-        #                 '3:4 "act" should be followed by a colon (":") on line 2 of the docstring'
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act missing colon",
-        #         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        #     act:"""
-        # ''',
-        #             (
-        #                 '3:4 "act:" should be followed by a description of the test execution on line 2 '
-        #                 "of the docstring"
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act no description",
-        #         ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+
+act"""
+''',
+            (
+                "3:4 there should not be an empty line in the test setup description on line 2 of "
+                "the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act empty line before",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+act"""
+''',
+            (
+                "3:4 the indentation of line 2 of the docstring should match the indentation of "
+                "the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong column offset",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+        line 2
+act"""
+''',
+            (
+                "3:4 the indentation of line 3 of the docstring should match the indentation of "
+                "the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong column offset arrange multi line",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    when"""
+''',
+            (
+                '3:4 the docstring should include "act" describing the test execution on line 2 of'
+                " the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong word",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act"""
+''',
+            (
+                '3:4 "act" should be followed by a colon (":") on line 2 of the docstring'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act missing colon",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act:"""
+''',
+            (
+                '3:4 "act:" should be followed by a description of the test execution on line 2 '
+                "of the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act no description",
+        ),
         #         pytest.param(
         #             '''
         # def test_():
