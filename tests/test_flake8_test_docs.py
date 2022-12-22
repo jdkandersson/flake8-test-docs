@@ -111,7 +111,7 @@ def test_():
 arrange"""
 ''',
             (
-                "3:4 there should only be a single new line at the start of the docstring"
+                "3:4 there should only be a single empty line at the start of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange extra new line",
@@ -125,7 +125,7 @@ def test_():
 arrange"""
 ''',
             (
-                "3:4 there should only be a single new line at the start of the docstring"
+                "3:4 there should only be a single empty line at the start of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange many extra new line",

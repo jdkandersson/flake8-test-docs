@@ -87,6 +87,49 @@ def _append_invalid_msg_postfix(func: Callable[..., str | None]) -> Callable[...
     return wrapper
 
 
+def _check_section_start(
+    line: str, section_name: str, index: int, col_offset: int, expected_section_prefix: str
+) -> str | None:
+    """Check the first line of a section.
+
+    Args:
+        line: The line to check
+        index: The index of the line in the docstring
+        section_name: The name of the section (e.g., arrange).
+        col_offset: The column offset where the docstring definition starts.
+        expected_section_prefix: The prefix expected at the start of a section.
+
+    Returns:
+        The problem description if the line has problems or None.
+    """
+    if not line:
+        return "there should only be a single empty line at the start of the docstring"
+    if section_name not in line:
+        return (
+            'the docstring should include "arrange" describing the test setup in line '
+            f"{index} of the docstring"
+        )
+    if not line.startswith(expected_section_prefix):
+        return (
+            f"the indentation of line {index} of the docstring should match the "
+            "indentation of the docstring"
+        )
+    if not line[col_offset:].startswith(section_name):
+        return f'line {index} of the docstring should start with "{section_name}"'
+    if not line[col_offset + len(section_name) :].startswith(":"):
+        return (
+            f'"{section_name}" should be followed by a colon (":") on line '
+            f"{index} of the docstring"
+        )
+    if not line[col_offset + len(section_name) + 1 :]:
+        return (
+            f'"{section_name}:" should be followed by a description of the test setup on '
+            f"line {index} of the docstring"
+        )
+
+    return None
+
+
 @_append_invalid_msg_postfix
 def _docstring_problem_message(
     docstring: str, col_offset: int, docs_pattern: DocsPattern
@@ -108,39 +151,21 @@ def _docstring_problem_message(
         return "the docstring should start with an empty line"
 
     docstring_lines = docstring.splitlines()
-    expected_section_leading_whitespace = " " * col_offset
+    expected_section_prefix = " " * col_offset
     expected_indentation = 4
-    expected_description_leading_whitespace = (
-        f"{expected_section_leading_whitespace}{' ' * expected_indentation}"
-    )
+    expected_description_prefix = f"{expected_section_prefix}{' ' * expected_indentation}"
 
     arrange_index = 1
-    if not docstring_lines[arrange_index]:
-        return "there should only be a single new line at the start of the docstring"
-    if docs_pattern.arrange not in docstring_lines[arrange_index]:
-        return (
-            'the docstring should include "arrange" describing the test setup in line '
-            f"{arrange_index} of the docstring"
+    if (
+        arrange_start_problem := _check_section_start(
+            line=docstring_lines[arrange_index],
+            section_name=docs_pattern.arrange,
+            index=arrange_index,
+            col_offset=col_offset,
+            expected_section_prefix=expected_section_prefix,
         )
-    if not docstring_lines[arrange_index].startswith(expected_section_leading_whitespace):
-        return (
-            f"the indentation of line {arrange_index} of the docstring should match the "
-            "indentation of the docstring"
-        )
-    if not docstring_lines[arrange_index][col_offset:].startswith(docs_pattern.arrange):
-        return f'line {arrange_index} of the docstring should start with "{docs_pattern.arrange}"'
-    if not docstring_lines[arrange_index][col_offset + len(docs_pattern.arrange) :].startswith(
-        ":"
-    ):
-        return (
-            f'"{docs_pattern.arrange}" should be followed by a colon (":") on line '
-            f"{arrange_index} of the docstring"
-        )
-    if not docstring_lines[arrange_index][col_offset + len(docs_pattern.arrange) + 1 :]:
-        return (
-            f'"{docs_pattern.arrange}:" should be followed by a description of the test setup on '
-            f"line {arrange_index} of the docstring"
-        )
+    ) is not None:
+        return arrange_start_problem
     # Process remaining lines of arrange description
     for arrange_line_index in range(arrange_index + 1, len(docstring_lines)):
         arrange_line = docstring_lines[arrange_line_index]
@@ -155,8 +180,8 @@ def _docstring_problem_message(
                 f"{arrange_line_index} of the docstring"
             )
 
-        if not arrange_line.startswith(expected_description_leading_whitespace) or arrange_line[
-            len(expected_description_leading_whitespace) :
+        if not arrange_line.startswith(expected_description_prefix) or arrange_line[
+            len(expected_description_prefix) :
         ].startswith(" "):
             return (
                 f"test setup description on line {arrange_line_index} should be indented by "
