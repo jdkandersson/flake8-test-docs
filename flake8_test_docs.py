@@ -52,23 +52,64 @@ def _cli_arg_name_to_attr(cli_arg_name: str) -> str:
     return cli_arg_name.lstrip("-").replace("-", "_")  # pragma: nocover
 
 
-def _docstring_problem_message(docstring: str, col_offset: int) -> str | None:
+class DocsPattern(NamedTuple):
+    """Represents the pattern for the docstring.
+
+    Attrs:
+        arrange: The prefix for the test setup description.
+        act: The prefix for the test execution description.
+        assert_: The prefix for the test check description.
+    """
+
+    arrange: str
+    act: str
+    assert_: str
+
+
+def _docstring_problem_message(
+    docstring: str, col_offset: int, docs_pattern: DocsPattern
+) -> str | None:
     """Get the problem message for a docstring.
 
     Args:
         docstring: The docstring to check.
         col_offset: The column offset where the docstring definition starts.
+        docs_pattern: The pattern the docstring should follow.
 
     Returns:
         The problem message explaining what is wrong with the docstring or None if it is valid.
     """
     if not docstring:
         return f"the docstring should not be empty{INVALID_MSG_POSTFIX}"
+
+    if not docstring.startswith("\n"):
+        return f"the docstring should start with an empty line{INVALID_MSG_POSTFIX}"
+
+    docstring_lines = docstring.splitlines()
+
+    arrange_index = 1
+    if not docstring_lines[arrange_index]:
+        return (
+            "there should only be a single new line at the start of the "
+            f"docstring{INVALID_MSG_POSTFIX}"
+        )
+    if docs_pattern.arrange not in docstring_lines[arrange_index]:
+        return (
+            'the docstring should include "arrange" describing the test setup in line '
+            f"{arrange_index} of the docstring{INVALID_MSG_POSTFIX}"
+        )
+    if not docstring_lines[arrange_index].startswith(" " * col_offset):
+        return (
+            f"the indentation of line {arrange_index} of the docstring should match the "
+            f"indentation of the docstring{INVALID_MSG_POSTFIX}"
+        )
+
     return None
 
 
 class Problem(NamedTuple):
     """Represents a problem within the code.
+
     Attrs:
         lineno: The line number the problem occurred on
         col_offset: The column the problem occurred on
@@ -88,10 +129,10 @@ class Visitor(ast.NodeVisitor):
     """
 
     problems: list[Problem]
-    _test_docs_pattern: str
+    _test_docs_pattern: DocsPattern
     _test_function_pattern: str
 
-    def __init__(self, test_docs_pattern: str, test_function_pattern) -> None:
+    def __init__(self, test_docs_pattern: DocsPattern, test_function_pattern: str) -> None:
         """Construct."""
         self.problems = []
         self._test_docs_pattern = test_docs_pattern
@@ -105,8 +146,6 @@ class Visitor(ast.NodeVisitor):
             node: The FunctionDef node.
         """
         if re.match(self._test_function_pattern, node.name):
-            pprint(node)
-
             if (
                 not node.body
                 or not isinstance(node.body, list)
@@ -118,7 +157,9 @@ class Visitor(ast.NodeVisitor):
                 self.problems.append(Problem(node.lineno, node.col_offset, MISSING_MSG))
             else:
                 if problem_message := _docstring_problem_message(
-                    node.body[0].value.value, node.body[0].value.col_offset
+                    node.body[0].value.value,
+                    node.body[0].value.col_offset,
+                    self._test_docs_pattern,
                 ):
                     self.problems.append(
                         Problem(
@@ -144,9 +185,9 @@ class Plugin:
     version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["tool"]["poetry"][
         "version"
     ]
-    _test_docs_pattern = TEST_DOCS_PATTERN_DEFAULT
-    _test_docs_filename_pattern = TEST_DOCS_FILENAME_PATTERN_DEFAULT
-    _test_docs_function_pattern = TEST_DOCS_FUNCTION_PATTERN_DEFAULT
+    _test_docs_pattern: DocsPattern = DocsPattern(*TEST_DOCS_PATTERN_DEFAULT.split("/"))
+    _test_docs_filename_pattern: str = TEST_DOCS_FILENAME_PATTERN_DEFAULT
+    _test_docs_function_pattern: str = TEST_DOCS_FUNCTION_PATTERN_DEFAULT
     _filename: str
 
     def __init__(self, tree: ast.AST, filename: str) -> None:
@@ -204,10 +245,12 @@ class Plugin:
         Args:
             options: The options passed to flake8.
         """
-        cls._test_docs_pattern = (
+        test_docs_pattern_arg = (
             getattr(options, _cli_arg_name_to_attr(TEST_DOCS_PATTERN_ARG_NAME), None)
-            or cls._test_docs_pattern
+            or TEST_DOCS_PATTERN_DEFAULT
         )
+        assert test_docs_pattern_arg.count("/") == 2
+        cls._test_docs_pattern = DocsPattern(*test_docs_pattern_arg.split("/"))
         cls._test_docs_filename_pattern = (
             getattr(options, _cli_arg_name_to_attr(TEST_DOCS_FILENAME_PATTERN_ARG_NAME), None)
             or cls._test_docs_filename_pattern
