@@ -321,35 +321,37 @@ def test_():
             ),
             id="invalid docstring act no description",
         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        #     act: line 2
-        # line 4"""
-        # ''',
-        #             (
-        #                 "3:4 there should not be an empty line in the test execution description"
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act wrong newline in description",
-        #         ),
-        #         pytest.param(
-        #             '''
-        # def test_():
-        #     """
-        #     arrange: line 1
-        #     act: line 2
-        # line 3"""
-        # ''',
-        #             (
-        #                 "3:4 test execution description on line 3 should be indented by 4 more spaces than "
-        #                 '"act:" on line 2'
-        #                 f"{INVALID_MSG_POSTFIX}",
-        #             ),
-        #             id="invalid docstring act wrong multiline at start",
-        #         ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+
+line 4"""
+''',
+            (
+                "3:4 there should not be an empty line in the test execution description on line "
+                "3 of the docstring"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong newline in description",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+line 3"""
+''',
+            (
+                "3:4 test execution description on line 3 should be indented by 4 more spaces than "
+                '"act:" on line 2'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
+            id="invalid docstring act wrong multiline at start",
+        ),
         #         pytest.param(
         #             '''
         # def test_():

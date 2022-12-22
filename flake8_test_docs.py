@@ -67,6 +67,22 @@ class DocsPattern(NamedTuple):
     assert_: str
 
 
+class Section(NamedTuple):
+    """Information about a section.
+
+    Attrs:
+        index: The index of the first line of the section in the docstring.
+        name: A short description of the section.
+        description: What the section does.
+        next_section_name: The name of the next section or None if it is the last section.
+    """
+
+    index: int
+    name: str
+    description: str
+    next_section_name: str | None
+
+
 def _append_invalid_msg_postfix(func: Callable[..., str | None]) -> Callable[..., str | None]:
     """Add the invalid message postfix to the return value.
 
@@ -88,20 +104,13 @@ def _append_invalid_msg_postfix(func: Callable[..., str | None]) -> Callable[...
 
 
 def _check_section_start(
-    line: str,
-    section_name: str,
-    section_description: str,
-    index: int,
-    col_offset: int,
-    expected_section_prefix: str,
+    line: str, section: Section, col_offset: int, expected_section_prefix: str
 ) -> str | None:
     """Check the first line of a section.
 
     Args:
         line: The line to check
-        index: The index of the line in the docstring
-        section_name: The name of the section (e.g., arrange).
-        section_description: Description of the section (e.g., "setup")
+        section: Information about the section.
         col_offset: The column offset where the docstring definition starts.
         expected_section_prefix: The prefix expected at the start of a section.
 
@@ -110,28 +119,28 @@ def _check_section_start(
     """
     if not line:
         return "there should only be a single empty line at the start of the docstring"
-    if section_name not in line:
+    if section.name not in line:
         return (
-            f'the docstring should include "{section_name}" describing the test '
-            f"{section_description} on line {index} of the docstring"
+            f'the docstring should include "{section.name}" describing the test '
+            f"{section.description} on line {section.index} of the docstring"
         )
     if not line.startswith(expected_section_prefix):
         return (
-            f"the indentation of line {index} of the docstring should match the "
+            f"the indentation of line {section.index} of the docstring should match the "
             "indentation of the docstring"
         )
-    if not line[col_offset:].startswith(section_name):
-        return f'line {index} of the docstring should start with "{section_name}"'
-    if not line[col_offset + len(section_name) :].startswith(":"):
+    if not line[col_offset:].startswith(section.name):
+        return f'line {section.index} of the docstring should start with "{section.name}"'
+    if not line[col_offset + len(section.name) :].startswith(":"):
         return (
-            f'"{section_name}" should be followed by a colon (":") on line '
-            f"{index} of the docstring"
+            f'"{section.name}" should be followed by a colon (":") on line '
+            f"{section.index} of the docstring"
         )
-    if not line[col_offset + len(section_name) + 1 :]:
+    if not line[col_offset + len(section.name) + 1 :]:
         return (
-            f'"{section_name}:" should be followed by a description of the test '
-            f"{section_description} on "
-            f"line {index} of the docstring"
+            f'"{section.name}:" should be followed by a description of the test '
+            f"{section.description} on "
+            f"line {section.index} of the docstring"
         )
 
     return None
@@ -166,9 +175,8 @@ def _next_section_start(
 
 
 def _check_section_remaining_description(
-    section_index: int,
+    section: Section,
     docstring_lines: list[str],
-    next_section_name: str | None,
     expected_section_prefix: str,
     expected_description_prefix: str,
     expected_indentation: int,
@@ -176,9 +184,8 @@ def _check_section_remaining_description(
     """Check the remaining description of a section after the first line.
 
     Args:
-        section_index: The index of the start of the section.
+        section: Information about the section.
         docstring_lines: All the lines of the docstring.
-        next_section_name: The name of the next section or None if it is the last section.
         expected_section_prefix: The prefix expected at the start of a section.
         expected_description_prefix: The prefix expected at the start of description line.
         expected_indentation: The number of indentation characters.
@@ -187,30 +194,31 @@ def _check_section_remaining_description(
         The problem message if there is a problem or None and the index of the start index of the
         next section.
     """
-    line_index = section_index + 1
+    line_index = section.index + 1
     for line_index in range(line_index, len(docstring_lines)):
         line = docstring_lines[line_index]
 
         # Detecting the start of the next section
         if _next_section_start(
             line=line,
-            next_section_name=next_section_name,
+            next_section_name=section.next_section_name,
             expected_section_prefix=expected_section_prefix,
         ):
             break
 
         if not line:
             return (
-                "there should not be an empty line in the test setup description on line "
-                f"{line_index} of the docstring"
+                f"there should not be an empty line in the test {section.description} description "
+                f"on line {line_index} of the docstring"
             ), line_index
 
         if not line.startswith(expected_description_prefix) or line[
             len(expected_description_prefix) :
         ].startswith(" "):
             return (
-                f"test setup description on line {line_index} should be indented by "
-                f'{expected_indentation} more spaces than "arrange:" on line {section_index}'
+                f"test {section.description} description on line {line_index} should be indented "
+                f'by {expected_indentation} more spaces than "{section.name}:" on line '
+                f"{section.index}"
             ), line_index
 
     return None, line_index
@@ -242,48 +250,51 @@ def _docstring_problem_message(
     expected_description_prefix = f"{expected_section_prefix}{' ' * expected_indentation}"
 
     # Check arrange
-    arrange_index = 1
+    arrange_section = Section(
+        index=1, name=docs_pattern.arrange, description="setup", next_section_name=docs_pattern.act
+    )
     arrange_start_problem = _check_section_start(
-        line=docstring_lines[arrange_index],
-        section_name=docs_pattern.arrange,
-        section_description="setup",
-        index=arrange_index,
+        line=docstring_lines[arrange_section.index],
+        section=arrange_section,
         col_offset=col_offset,
         expected_section_prefix=expected_section_prefix,
     )
     if arrange_start_problem is not None:
         return arrange_start_problem
     arrange_description_problem, act_index = _check_section_remaining_description(
-        section_index=arrange_index,
+        section=arrange_section,
         docstring_lines=docstring_lines,
-        next_section_name=docs_pattern.act,
-        expected_description_prefix=expected_description_prefix,
         expected_section_prefix=expected_section_prefix,
+        expected_description_prefix=expected_description_prefix,
         expected_indentation=expected_indentation,
     )
     if arrange_description_problem is not None:
         return arrange_description_problem
 
     # Check act
-    act_start_problem = _check_section_start(
-        line=docstring_lines[act_index],
-        section_name=docs_pattern.act,
-        section_description="execution",
+    act_section = Section(
         index=act_index,
+        name=docs_pattern.act,
+        description="execution",
+        next_section_name=docs_pattern.assert_,
+    )
+    act_start_problem = _check_section_start(
+        line=docstring_lines[act_section.index],
+        section=act_section,
         col_offset=col_offset,
         expected_section_prefix=expected_section_prefix,
     )
     if act_start_problem is not None:
         return act_start_problem
-    # act_description_problem, assert_index = _check_section_remaining_description(
-    #     section_index=act_index,
-    #     docstring_lines=docstring_lines,
-    #     next_section_name=docs_pattern.act,
-    #     expected_description_prefix=expected_description_prefix,
-    #     expected_indentation=expected_indentation,
-    # )
-    # if act_description_problem is not None:
-    #     return act_description_problem
+    act_description_problem, assert_index = _check_section_remaining_description(
+        section=act_section,
+        docstring_lines=docstring_lines,
+        expected_section_prefix=expected_section_prefix,
+        expected_description_prefix=expected_description_prefix,
+        expected_indentation=expected_indentation,
+    )
+    if act_description_problem is not None:
+        return act_description_problem
 
     return None
 
