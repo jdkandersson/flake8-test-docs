@@ -317,7 +317,7 @@ def _docstring_problem_message(
     )
     if assert_start_problem is not None:
         return assert_start_problem
-    assert_description_problem, _ = _check_section_remaining_description(
+    assert_description_problem, last_line_index = _check_section_remaining_description(
         section=assert_section,
         docstring_lines=docstring_lines,
         expected_section_prefix=expected_section_prefix,
@@ -326,6 +326,15 @@ def _docstring_problem_message(
     )
     if assert_description_problem is not None:
         return assert_description_problem
+
+    if (
+        len(docstring_lines) <= last_line_index
+        or docstring_lines[last_line_index] != expected_section_prefix
+    ):
+        return (
+            f"the indentation of the last line of the docstring at line {last_line_index} should "
+            "match the indentation of the docstring"
+        )
 
     return None
 
