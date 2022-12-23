@@ -1,4 +1,4 @@
-"""Tests for plugin."""
+"""Unit tests for plugin."""
 
 import ast
 from typing import Tuple
@@ -22,7 +22,7 @@ def _result(code: str, filename: str = "test_.py") -> Tuple[str, ...]:
     """Generate linting results.
 
     Args:
-        code: The code to convert.
+        code: The code to check.
 
     Returns:
         The linting result.

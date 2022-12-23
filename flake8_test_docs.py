@@ -36,6 +36,8 @@ TEST_DOCS_FILENAME_PATTERN_ARG_NAME = "--test-docs-filename-pattern"
 TEST_DOCS_FILENAME_PATTERN_DEFAULT = r"test_.*.py"
 TEST_DOCS_FUNCTION_PATTERN_ARG_NAME = "--test-docs-function-pattern"
 TEST_DOCS_FUNCTION_PATTERN_DEFAULT = r"test_.*"
+INDENT_SIZE_ARN_NAME = "--indent-size"
+INDENT_SIZE_DEFAULT = 4
 ARRANGE_DESCRIPTION = "setup"
 ACT_DESCRIPTION = "execution"
 ASSERT_DESCRIPTION = "checks"
@@ -372,7 +374,7 @@ class Plugin:
     _test_docs_pattern: DocsPattern = DocsPattern(*TEST_DOCS_PATTERN_DEFAULT.split("/"))
     _test_docs_filename_pattern: str = TEST_DOCS_FILENAME_PATTERN_DEFAULT
     _test_docs_function_pattern: str = TEST_DOCS_FUNCTION_PATTERN_DEFAULT
-    _indent_size: int = 4
+    _indent_size: int = INDENT_SIZE_DEFAULT
     _filename: str
 
     def __init__(self, tree: ast.AST, filename: str) -> None:
@@ -465,7 +467,9 @@ class Plugin:
             getattr(options, _cli_arg_name_to_attr(TEST_DOCS_FUNCTION_PATTERN_ARG_NAME), None)
             or cls._test_docs_function_pattern
         )
-        cls._indent_size = options.indent_size or cls._indent_size
+        cls._indent_size = (
+            getattr(options, _cli_arg_name_to_attr(INDENT_SIZE_ARN_NAME), None) or cls._indent_size
+        )
 
     def run(self) -> Iterable[Tuple[int, int, str, Type["Plugin"]]]:
         """Lint a file.

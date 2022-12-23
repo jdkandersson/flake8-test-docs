@@ -1,4 +1,4 @@
-"""Tests for plugin."""
+"""Integration tests for plugin."""
 
 import subprocess
 import sys
@@ -13,6 +13,7 @@ from flake8_test_docs import (
     TEST_DOCS_FILENAME_PATTERN_ARG_NAME,
     TEST_DOCS_FUNCTION_PATTERN_ARG_NAME,
     TEST_DOCS_PATTERN_ARG_NAME,
+    INDENT_SIZE_ARN_NAME,
 )
 
 
@@ -33,6 +34,7 @@ def test_help():
         assert TEST_DOCS_PATTERN_ARG_NAME in stdout
         assert TEST_DOCS_FILENAME_PATTERN_ARG_NAME in stdout
         assert TEST_DOCS_FUNCTION_PATTERN_ARG_NAME in stdout
+        assert INDENT_SIZE_ARN_NAME in stdout
 
 
 def create_code_file(code: str, filename: str, base_path: Path) -> Path:
@@ -204,9 +206,13 @@ def test_pass(code: str, filename: str, extra_args: str, tmp_path: Path):
     then: the process exits with zero code and empty stdout
     """
     code_file = create_code_file(code, filename, tmp_path)
+    (config_file := tmp_path / ".flake8").touch()
 
     with subprocess.Popen(
-        f"{sys.executable} -m flake8 {code_file} {extra_args} --ignore D205,D400,D103",
+        (
+            f"{sys.executable} -m flake8 {code_file} {extra_args} --ignore D205,D400,D103 "
+            f"--config {config_file}"
+        ),
         stdout=subprocess.PIPE,
         shell=True,
     ) as proc:
@@ -223,10 +229,7 @@ def test_self():
     then: the process exits with zero code and empty stdout
     """
     with subprocess.Popen(
-        (
-            f"{sys.executable} -m flake8 tests/ --test-docs-pattern given/when/then "
-            "--ignore D205,D400,D103"
-        ),
+        f"{sys.executable} -m flake8 tests/ --ignore D205,D400,D103",
         stdout=subprocess.PIPE,
         shell=True,
     ) as proc:
