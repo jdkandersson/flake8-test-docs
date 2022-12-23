@@ -13,6 +13,7 @@ from flake8_test_docs import (
     TEST_DOCS_FILENAME_PATTERN_ARG_NAME,
     TEST_DOCS_FUNCTION_PATTERN_ARG_NAME,
     INVALID_MSG_POSTFIX,
+    MISSING_CODE,
     INVALID_CODE,
 )
 
@@ -36,7 +37,7 @@ def test_help():
         assert TEST_DOCS_FUNCTION_PATTERN_ARG_NAME in stdout
 
 
-def create_code_file(code: str, base_path: Path) -> Path:
+def create_code_file(code: str, filename: str, base_path: Path) -> Path:
     """Create the code file with the given code.
 
     Args:
@@ -46,7 +47,7 @@ def create_code_file(code: str, base_path: Path) -> Path:
     Returns:
         The path to the code file.
     """
-    (code_file := base_path / "test_.py").write_text(f'"""Docstring."""\n\n\n{code}')
+    (code_file := base_path / filename).write_text(f'"""Docstring."""\n\n{code}')
     return code_file
 
 
@@ -56,7 +57,7 @@ def test_fail(tmp_path: Path):
     when: the flake8 is run against the code
     then: the process exits with non-zero code and includes the error message
     """
-    code_file = create_code_file('def test_():\n    """Docstring."""\n', tmp_path)
+    code_file = create_code_file('\ndef test_():\n    """Docstring."""\n', "test_.py", tmp_path)
 
     with subprocess.Popen(
         f"{sys.executable} -m flake8 {code_file}",
@@ -70,3 +71,97 @@ def test_fail(tmp_path: Path):
             in stdout
         )
         assert proc.returncode
+
+
+@pytest.mark.parametrize(
+    "code, filename, extra_args",
+    [
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+    assert: line 3
+    """
+''',
+            "test_.py",
+            "",
+            id="default",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    given: line 1
+    when: line 2
+    then: line 3
+    """
+''',
+            "test_.py",
+            f"{TEST_DOCS_PATTERN_ARG_NAME} given/when/then",
+            id="custom docs pattern",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+    assert: line 3
+    """
+''',
+            "_test.py",
+            f"{TEST_DOCS_FILENAME_PATTERN_ARG_NAME} .*_test.py",
+            id="custom filename pattern",
+        ),
+        pytest.param(
+            '''
+def _test():
+    """
+    arrange: line 1
+    act: line 2
+    assert: line 3
+    """
+''',
+            "test_.py",
+            f"{TEST_DOCS_FUNCTION_PATTERN_ARG_NAME} .*_test",
+            id="custom function pattern",
+        ),
+        pytest.param(
+            f"""
+def test_():  # noqa: {MISSING_CODE}
+    pass
+""",
+            "test_.py",
+            "",
+            id=f"{MISSING_CODE} disabled",
+        ),
+        pytest.param(
+            f'''
+def test_():
+    """"""  # noqa: {INVALID_CODE}
+''',
+            "test_.py",
+            "",
+            id=f"{INVALID_CODE} disabled",
+        ),
+    ],
+)
+def test_integration_pass(code: str, filename: str, extra_args: str, tmp_path: Path):
+    """
+    given: file with Python code that passes the linting
+    when: the flake8 is run against the code
+    then: the process exits with zero code and empty stdout
+    """
+    code_file = create_code_file(code, filename, tmp_path)
+
+    with subprocess.Popen(
+        f"{sys.executable} -m flake8 {code_file} {extra_args} --ignore D205,D400,D103",
+        stdout=subprocess.PIPE,
+        shell=True,
+    ) as proc:
+        stdout = proc.communicate()[0].decode(encoding="utf-8")
+
+        assert not stdout, stdout
+        assert not proc.returncode
