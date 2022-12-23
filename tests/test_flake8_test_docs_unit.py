@@ -3,6 +3,8 @@
 import ast
 
 import pytest
+import hypothesis
+from hypothesis import strategies
 
 from flake8_test_docs import (
     Plugin,
@@ -821,3 +823,37 @@ def test_():
 """
 
     assert _result(code, filename) == expected_result
+
+
+_TEST_DOCS_SECTION_PREFIX_REGEX = r"    "
+_TEST_DOCS_WORD_REGEX = r"(\w+ ?)+"
+_TEST_DOCS_SECTION_START_REGEX = rf": {_TEST_DOCS_WORD_REGEX}\n"
+_TEST_DOCS_OPTIONAL_LINE_REGEX = (
+    rf"({_TEST_DOCS_SECTION_PREFIX_REGEX * 2}{_TEST_DOCS_WORD_REGEX}\n)*"
+)
+_TEST_DOCS_REGEX = (
+    f"^\n"
+    f"{_TEST_DOCS_SECTION_PREFIX_REGEX}arrange{_TEST_DOCS_SECTION_START_REGEX}"
+    f"{_TEST_DOCS_OPTIONAL_LINE_REGEX}"
+    f"{_TEST_DOCS_SECTION_PREFIX_REGEX}act{_TEST_DOCS_SECTION_START_REGEX}"
+    f"{_TEST_DOCS_OPTIONAL_LINE_REGEX}"
+    f"{_TEST_DOCS_SECTION_PREFIX_REGEX}assert{_TEST_DOCS_SECTION_START_REGEX}"
+    f"{_TEST_DOCS_OPTIONAL_LINE_REGEX}"
+    f"{_TEST_DOCS_SECTION_PREFIX_REGEX}$"
+)
+
+
+@hypothesis.settings(suppress_health_check=(hypothesis.HealthCheck.too_slow,))
+@hypothesis.given(strategies.from_regex(_TEST_DOCS_REGEX))
+def test_hypothesis(source: str):
+    """
+    given: generated docstring
+    when: linting is run on the code
+    then: empty results are returned
+    """
+    code = f'''
+def test_():
+    """{source}"""
+'''
+
+    assert not _result(code)

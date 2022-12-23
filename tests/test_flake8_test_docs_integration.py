@@ -52,7 +52,7 @@ def create_code_file(code: str, filename: str, base_path: Path) -> Path:
 def test_fail(tmp_path: Path):
     """
     given: file with Python code that fails the linting
-    when: the flake8 is run against the code
+    when: flake8 is run against the code
     then: the process exits with non-zero code and includes the error message
     """
     code_file = create_code_file('\ndef test_():\n    """Docstring."""\n', "test_.py", tmp_path)
@@ -83,7 +83,7 @@ def test_fail(tmp_path: Path):
 def test_invalid_docs_pattern(docs_pattern: str, tmp_path: Path):
     """
     given: invalid value for the docs pattern argument
-    when: the flake8 is run against the code
+    when: flake8 is run against the code
     then: the process exits with non-zero code
     """
     code = '''
@@ -197,10 +197,10 @@ def test_():
         ),
     ],
 )
-def test_integration_pass(code: str, filename: str, extra_args: str, tmp_path: Path):
+def test_pass(code: str, filename: str, extra_args: str, tmp_path: Path):
     """
     given: file with Python code that passes the linting
-    when: the flake8 is run against the code
+    when: flake8 is run against the code
     then: the process exits with zero code and empty stdout
     """
     code_file = create_code_file(code, filename, tmp_path)
@@ -216,10 +216,10 @@ def test_integration_pass(code: str, filename: str, extra_args: str, tmp_path: P
         assert not proc.returncode
 
 
-def test_integration_self():
+def test_self():
     """
     given: working linter
-    when: the flake8 is run against the tests of the linter
+    when: flake8 is run against the tests of the linter
     then: the process exits with zero code and empty stdout
     """
     with subprocess.Popen(
