@@ -22,11 +22,6 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
       - id: output
         run: |
           echo package_name=$(python -c 'import tomllib;from pathlib import Path;print(tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["tool"]["poetry"]["name"])') >> $GITHUB_OUTPUT
