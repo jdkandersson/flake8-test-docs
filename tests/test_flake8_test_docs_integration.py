@@ -42,6 +42,7 @@ def create_code_file(code: str, filename: str, base_path: Path) -> Path:
 
     Args:
         code: The code to write to the file.
+        filename: The name of the file to create.
         base_path: The path to create the file within
 
     Returns:
@@ -100,7 +101,8 @@ def test_():
 
     with subprocess.Popen(
         f"{sys.executable} -m flake8 {code_file} {TEST_DOCS_PATTERN_ARG_NAME} {docs_pattern}",
-        stdout=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         shell=True,
     ) as proc:
         proc.communicate()
