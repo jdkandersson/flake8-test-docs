@@ -7,13 +7,13 @@ from pathlib import Path
 import pytest
 
 from flake8_test_docs import (
+    INDENT_SIZE_ARN_NAME,
     INVALID_CODE,
     INVALID_MSG_POSTFIX,
     MISSING_CODE,
     TEST_DOCS_FILENAME_PATTERN_ARG_NAME,
     TEST_DOCS_FUNCTION_PATTERN_ARG_NAME,
     TEST_DOCS_PATTERN_ARG_NAME,
-    INDENT_SIZE_ARN_NAME,
 )
 
 
