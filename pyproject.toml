@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flake8-test-docs"
-version = "1.0.4"
+version = "1.0.5"
 description = "A linter that checks test docstrings for the arrange/act/assert structure"
 authors = ["David Andersson <david@jdkandersson.com>"]
 license = "Apache 2.0"
@@ -22,7 +22,6 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8.1"
 flake8 = "^6"
-tomli = { version = "^2", python = "<3.11" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7"

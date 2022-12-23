@@ -3,26 +3,13 @@
 import argparse
 import ast
 import re
-import sys
 from functools import wraps
 from pathlib import Path
 from typing import Callable, Iterable, List, NamedTuple, Optional, Tuple, Type
 
 from flake8.options.manager import OptionManager
 
-# One or the other line can't be covered depending on the Python version
-if sys.version_info < (3, 11):  # pragma: nocover
-    import tomli as tomllib
-else:  # pragma: nocover
-    import tomllib
-
-ERROR_CODE_PREFIX = next(
-    iter(
-        tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["tool"]["poetry"][
-            "plugins"
-        ]["flake8.extension"].keys()
-    )
-)
+ERROR_CODE_PREFIX = "TDO"
 MORE_INFO_BASE = "more information: https://github.com/jdkandersson/flake8-test-docs"
 MISSING_CODE = f"{ERROR_CODE_PREFIX}001"
 MISSING_MSG = (
@@ -369,9 +356,6 @@ class Plugin:
     """
 
     name = __name__
-    version = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["tool"]["poetry"][
-        "version"
-    ]
     _test_docs_pattern: DocsPattern = DocsPattern(*TEST_DOCS_PATTERN_DEFAULT.split("/"))
     _test_docs_filename_pattern: str = TEST_DOCS_FILENAME_PATTERN_DEFAULT
     _test_docs_function_pattern: str = TEST_DOCS_FUNCTION_PATTERN_DEFAULT
