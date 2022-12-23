@@ -3,7 +3,7 @@
 Have you ever needed to understand a new project and started reading the tests
 only to find that you have no idea what the tests are doing? Good test
 documentation is critical during test definition and when reviewing tests
-written in the past or by someone else. This linter cheecks that the test
+written in the past or by someone else. This linter checks that the test
 function docstring includes a description of the test setup, execution and
 checks.
 
@@ -21,7 +21,6 @@ On the following code:
 ```Python
 # test_source.py
 def test_foo():
-    """Testing foo."""
     value = foo()
     assert value == "bar"
 ```
