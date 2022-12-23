@@ -1,16 +1,12 @@
 """Tests for plugin."""
 
 import ast
-import subprocess
-import sys
-from pathlib import Path
 
 import pytest
 
 from flake8_test_docs import (
     Plugin,
     MISSING_MSG,
-    MISSING_CODE,
     INVALID_CODE,
     INVALID_MSG_POSTFIX,
     ACT_DESCRIPTION,

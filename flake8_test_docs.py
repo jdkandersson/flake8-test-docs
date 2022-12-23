@@ -392,6 +392,27 @@ class Plugin:
 
     # No coverage since this only occurs from the command line
     @staticmethod
+    def _check_docs_pattern(value: str) -> str:  # pragma: nocover
+        """Check the docs pattern argument.
+
+        Args:
+            value: The docs pattern argument value to check.
+
+        Returns:
+            The value if it is valid.
+
+        Raises:
+            ValueError: if the value is invalid.
+        """
+        if value.count("/") != 2:
+            raise ValueError(
+                f"the {TEST_DOCS_PATTERN_ARG_NAME} must follow the pattern <given>/<when>/<when>, "
+                f"got: {value}"
+            )
+        return value
+
+    # No coverage since this only occurs from the command line
+    @staticmethod
     def add_options(option_manager: OptionManager) -> None:  # pragma: nocover
         """Add additional options to flake8.
 
@@ -401,6 +422,7 @@ class Plugin:
         option_manager.add_option(
             TEST_DOCS_PATTERN_ARG_NAME,
             default=TEST_DOCS_PATTERN_DEFAULT,
+            type=Plugin._check_docs_pattern,
             parse_from_config=True,
             help=(
                 "The expected test docs pattern, needs to be of the form <word>/<word>/<word> "
@@ -439,7 +461,6 @@ class Plugin:
             getattr(options, _cli_arg_name_to_attr(TEST_DOCS_PATTERN_ARG_NAME), None)
             or TEST_DOCS_PATTERN_DEFAULT
         )
-        assert test_docs_pattern_arg.count("/") == 2
         cls._test_docs_pattern = DocsPattern(*test_docs_pattern_arg.split("/"))
         cls._test_docs_filename_pattern = (
             getattr(options, _cli_arg_name_to_attr(TEST_DOCS_FILENAME_PATTERN_ARG_NAME), None)

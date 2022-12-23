@@ -1,6 +1,5 @@
 """Tests for plugin."""
 
-import ast
 import subprocess
 import sys
 from pathlib import Path
@@ -8,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from flake8_test_docs import (
-    Plugin,
     TEST_DOCS_PATTERN_ARG_NAME,
     TEST_DOCS_FILENAME_PATTERN_ARG_NAME,
     TEST_DOCS_FUNCTION_PATTERN_ARG_NAME,
@@ -20,7 +18,7 @@ from flake8_test_docs import (
 
 def test_help():
     """
-    given:
+    given: linter
     when: the flake8 help message is generated
     then: plugin is registered with flake8
     """
@@ -70,6 +68,41 @@ def test_fail(tmp_path: Path):
             f"{INVALID_CODE} the docstring should start with an empty line{INVALID_MSG_POSTFIX}"
             in stdout
         )
+        assert proc.returncode
+
+
+@pytest.mark.parametrize(
+    "docs_pattern",
+    [
+        pytest.param("", id="empty"),
+        pytest.param("given", id="only 1"),
+        pytest.param("given/when", id="only 2"),
+        pytest.param("given/when/then/extra", id="4 provided"),
+    ],
+)
+def test_invalid_docs_pattern(docs_pattern: str, tmp_path: Path):
+    """
+    given: invalid value for the docs pattern argument
+    when: the flake8 is run against the code
+    then: the process exits with non-zero code
+    """
+    code = '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
+    assert: line 3
+    """
+'''
+    code_file = create_code_file(code, "test_.py", tmp_path)
+
+    with subprocess.Popen(
+        f"{sys.executable} -m flake8 {code_file} {TEST_DOCS_PATTERN_ARG_NAME} {docs_pattern}",
+        stdout=subprocess.PIPE,
+        shell=True,
+    ) as proc:
+        proc.communicate()
+
         assert proc.returncode
 
 
