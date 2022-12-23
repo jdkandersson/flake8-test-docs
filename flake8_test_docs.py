@@ -60,7 +60,7 @@ class DocsPattern(NamedTuple):
     Attrs:
         arrange: The prefix for the test setup description.
         act: The prefix for the test execution description.
-        assert_: The prefix for the test check description.
+        assert_: The prefix for the test checks description.
     """
 
     arrange: str
@@ -72,7 +72,7 @@ class Section(NamedTuple):
     """Information about a section.
 
     Attrs:
-        index: The index of the first line of the section in the docstring.
+        index_: The index of the first line of the section in the docstring.
         name: A short description of the section.
         description: What the section does.
         next_section_name: The name of the next section or None if it is the last section.
@@ -87,7 +87,7 @@ class Section(NamedTuple):
 def _append_invalid_msg_prefix_postfix(
     func: Callable[..., Optional[str]]
 ) -> Callable[..., Optional[str]]:
-    """Add the invalid message postfix to the return value.
+    """Add the code prefix and invalid message postfix to the return value.
 
     Args:
         func: The function to wrap.
@@ -140,8 +140,7 @@ def _section_start_problem_message(
     if not line[col_offset + len(section.name) + 1 :]:
         return (
             f'"{section.name}:" should be followed by a description of the test '
-            f"{section.description} on "
-            f"line {section.index_} of the docstring"
+            f"{section.description} on line {section.index_} of the docstring"
         )
 
     return None
@@ -151,8 +150,8 @@ def _next_section_start(line: str, next_section_name: Optional[str], section_pre
     """Detect whether the line is the start of the next section.
 
     The next section is defined to be either that the line starts with the next section name after
-    any whitespace or that the line starts with exactly the number of whitespace characters
-    expected for a new section.
+    any whitespace or that the line starts with exactly the number of or fewer whitespace
+    characters expected for a new section.
 
     Args:
         line: The line to check.
@@ -206,9 +205,7 @@ def _remaining_description_problem_message(
 
         # Detecting the start of the next section
         if _next_section_start(
-            line=line,
-            next_section_name=section.next_section_name,
-            section_prefix=section_prefix,
+            line=line, next_section_name=section.next_section_name, section_prefix=section_prefix
         ):
             break
 
@@ -217,8 +214,7 @@ def _remaining_description_problem_message(
         ):
             return (
                 f"test {section.description} description on line {line_index} should be indented "
-                f'by {indent_size} more spaces than "{section.name}:" on line '
-                f"{section.index_}"
+                f'by {indent_size} more spaces than "{section.name}:" on line {section.index_}'
             ), line_index
 
     return None, line_index
@@ -405,8 +401,8 @@ class Plugin:
         """
         if value.count("/") != 2:
             raise ValueError(
-                f"the {TEST_DOCS_PATTERN_ARG_NAME} must follow the pattern <given>/<when>/<when>, "
-                f"got: {value}"
+                f"the {TEST_DOCS_PATTERN_ARG_NAME} must follow the pattern "
+                f"<arrange>/<act>/<assert>, got: {value}"
             )
         return value
 
