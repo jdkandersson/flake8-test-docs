@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flake8-test-docs"
-version = "1.0.2"
+version = "1.0.3"
 description = "A linter that checks test docstrings for the arrange/act/assert structure"
 authors = ["David Andersson <david@jdkandersson.com>"]
 license = "Apache 2.0"
