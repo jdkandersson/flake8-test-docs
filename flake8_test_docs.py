@@ -106,7 +106,7 @@ def _append_invalid_msg_postfix(func: Callable[..., str | None]) -> Callable[...
     return wrapper
 
 
-def _check_section_start(
+def _section_start_problem_message(
     line: str, section: Section, col_offset: int, expected_section_prefix: str
 ) -> str | None:
     """Check the first line of a section.
@@ -183,7 +183,7 @@ def _next_section_start(
     return False
 
 
-def _check_section_remaining_description(
+def _remaining_description_problem_message(
     section: Section,
     docstring_lines: list[str],
     expected_section_prefix: str,
@@ -258,87 +258,43 @@ def _docstring_problem_message(
     expected_indentation = 4
     expected_description_prefix = f"{expected_section_prefix}{' ' * expected_indentation}"
 
-    # Check arrange
-    arrange_section = Section(
-        index=1,
-        name=docs_pattern.arrange,
-        description=ARRANGE_DESCRIPTION,
-        next_section_name=docs_pattern.act,
+    sections = zip(
+        docs_pattern,
+        (ARRANGE_DESCRIPTION, ACT_DESCRIPTION, ASSERT_DESCRIPTION),
+        (docs_pattern.act, docs_pattern.assert_, None),
     )
-    arrange_start_problem = _check_section_start(
-        line=docstring_lines[arrange_section.index],
-        section=arrange_section,
-        col_offset=col_offset,
-        expected_section_prefix=expected_section_prefix,
-    )
-    if arrange_start_problem is not None:
-        return arrange_start_problem
-    arrange_description_problem, act_index = _check_section_remaining_description(
-        section=arrange_section,
-        docstring_lines=docstring_lines,
-        expected_section_prefix=expected_section_prefix,
-        expected_description_prefix=expected_description_prefix,
-        expected_indentation=expected_indentation,
-    )
-    if arrange_description_problem is not None:
-        return arrange_description_problem
-
-    # Check act
-    act_section = Section(
-        index=act_index,
-        name=docs_pattern.act,
-        description=ACT_DESCRIPTION,
-        next_section_name=docs_pattern.assert_,
-    )
-    act_start_problem = _check_section_start(
-        line=docstring_lines[act_section.index],
-        section=act_section,
-        col_offset=col_offset,
-        expected_section_prefix=expected_section_prefix,
-    )
-    if act_start_problem is not None:
-        return act_start_problem
-    act_description_problem, assert_index = _check_section_remaining_description(
-        section=act_section,
-        docstring_lines=docstring_lines,
-        expected_section_prefix=expected_section_prefix,
-        expected_description_prefix=expected_description_prefix,
-        expected_indentation=expected_indentation,
-    )
-    if act_description_problem is not None:
-        return act_description_problem
-
-    # Check assert
-    assert_section = Section(
-        index=assert_index,
-        name=docs_pattern.assert_,
-        description=ASSERT_DESCRIPTION,
-        next_section_name=None,
-    )
-    assert_start_problem = _check_section_start(
-        line=docstring_lines[assert_section.index],
-        section=assert_section,
-        col_offset=col_offset,
-        expected_section_prefix=expected_section_prefix,
-    )
-    if assert_start_problem is not None:
-        return assert_start_problem
-    assert_description_problem, last_line_index = _check_section_remaining_description(
-        section=assert_section,
-        docstring_lines=docstring_lines,
-        expected_section_prefix=expected_section_prefix,
-        expected_description_prefix=expected_description_prefix,
-        expected_indentation=expected_indentation,
-    )
-    if assert_description_problem is not None:
-        return assert_description_problem
+    section_index = 1
+    for section_name, section_description, next_section_name in sections:
+        section = Section(
+            index=section_index,
+            name=section_name,
+            description=section_description,
+            next_section_name=next_section_name,
+        )
+        start_problem = _section_start_problem_message(
+            line=docstring_lines[section.index],
+            section=section,
+            col_offset=col_offset,
+            expected_section_prefix=expected_section_prefix,
+        )
+        if start_problem is not None:
+            return start_problem
+        description_problem, section_index = _remaining_description_problem_message(
+            section=section,
+            docstring_lines=docstring_lines,
+            expected_section_prefix=expected_section_prefix,
+            expected_description_prefix=expected_description_prefix,
+            expected_indentation=expected_indentation,
+        )
+        if description_problem is not None:
+            return description_problem
 
     if (
-        len(docstring_lines) <= last_line_index
-        or docstring_lines[last_line_index] != expected_section_prefix
+        len(docstring_lines) <= section_index
+        or docstring_lines[section_index] != expected_section_prefix
     ):
         return (
-            f"the indentation of the last line of the docstring at line {last_line_index} should "
+            f"the indentation of the last line of the docstring at line {section_index} should "
             "match the indentation of the docstring"
         )
 
