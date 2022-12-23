@@ -135,13 +135,8 @@ def _section_start_problem_message(
             f"the indentation of line {section.index} of the docstring should match the "
             "indentation of the docstring"
         )
-    if not line[col_offset:].startswith(section.name):
-        return f'line {section.index} of the docstring should start with "{section.name}"'
-    if not line[col_offset + len(section.name) :].startswith(":"):
-        return (
-            f'"{section.name}" should be followed by a colon (":") on line '
-            f"{section.index} of the docstring"
-        )
+    if not line[col_offset:].startswith(f"{section.name}:"):
+        return f'line {section.index} of the docstring should start with "{section.name}:"'
     if not line[col_offset + len(section.name) + 1 :]:
         return (
             f'"{section.name}:" should be followed by a description of the test '
@@ -261,7 +256,7 @@ def _docstring_problem_message(
     sections = zip(
         docs_pattern,
         (ARRANGE_DESCRIPTION, ACT_DESCRIPTION, ASSERT_DESCRIPTION),
-        (docs_pattern.act, docs_pattern.assert_, None),
+        (*docs_pattern[1:], None),
     )
     section_index = 1
     for section_name, section_description, next_section_name in sections:

@@ -141,7 +141,7 @@ def test_():
     """
     given arrange"""
 ''',
-            (f'3:4 line 1 of the docstring should start with "arrange"{INVALID_MSG_POSTFIX}',),
+            (f'3:4 line 1 of the docstring should start with "arrange:"{INVALID_MSG_POSTFIX}',),
             id="invalid docstring arrange wrong word",
         ),
         pytest.param(
@@ -150,10 +150,7 @@ def test_():
     """
     arrange"""
 ''',
-            (
-                '3:4 "arrange" should be followed by a colon (":") on line 1 of the docstring'
-                f"{INVALID_MSG_POSTFIX}",
-            ),
+            (f'3:4 line 1 of the docstring should start with "arrange:"{INVALID_MSG_POSTFIX}',),
             id="invalid docstring arrange missing colon",
         ),
         pytest.param(
@@ -304,12 +301,19 @@ def test_():
 def test_():
     """
     arrange: line 1
+    when act"""
+''',
+            (f'3:4 line 2 of the docstring should start with "act:"{INVALID_MSG_POSTFIX}',),
+            id="invalid docstring act wrong start",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
     act"""
 ''',
-            (
-                '3:4 "act" should be followed by a colon (":") on line 2 of the docstring'
-                f"{INVALID_MSG_POSTFIX}",
-            ),
+            (f'3:4 line 2 of the docstring should start with "act:"{INVALID_MSG_POSTFIX}',),
             id="invalid docstring act missing colon",
         ),
         pytest.param(
@@ -455,12 +459,20 @@ def test_():
     """
     arrange: line 1
     act: line 2
+    then assert"""
+''',
+            (f'3:4 line 3 of the docstring should start with "assert:"{INVALID_MSG_POSTFIX}',),
+            id="invalid docstring assert wrong start",
+        ),
+        pytest.param(
+            '''
+def test_():
+    """
+    arrange: line 1
+    act: line 2
     assert"""
 ''',
-            (
-                '3:4 "assert" should be followed by a colon (":") on line 3 of the docstring'
-                f"{INVALID_MSG_POSTFIX}",
-            ),
+            (f'3:4 line 3 of the docstring should start with "assert:"{INVALID_MSG_POSTFIX}',),
             id="invalid docstring assert missing colon",
         ),
         pytest.param(
