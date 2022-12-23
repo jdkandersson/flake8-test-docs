@@ -1,20 +1,19 @@
 """A linter that checks test docstrings for the arrange/act/assert or given/when/then structure."""
 
-from functools import wraps
-import re
 import argparse
 import ast
-from pathlib import Path
+import re
 import sys
-from typing import Iterable, NamedTuple, Callable
+from functools import wraps
+from pathlib import Path
+from typing import Callable, Iterable, NamedTuple
+
+from flake8.options.manager import OptionManager
 
 if sys.version_info < (3, 11):  # pragma: nocover
     import toml as tomllib
 else:
     import tomllib
-
-from flake8.options.manager import OptionManager
-
 
 ERROR_CODE_PREFIX = next(
     iter(
@@ -79,7 +78,7 @@ class Section(NamedTuple):
         next_section_name: The name of the next section or None if it is the last section.
     """
 
-    index: int
+    index_: int
     name: str
     description: str
     next_section_name: str | None
@@ -124,25 +123,25 @@ def _section_start_problem_message(
     if not line:
         return (
             "there should only be a single empty line at the start of the docstring, found an "
-            f"empty line on line {section.index}"
+            f"empty line on line {section.index_}"
         )
     if section.name not in line:
         return (
             f'the docstring should include "{section.name}" describing the test '
-            f"{section.description} on line {section.index} of the docstring"
+            f"{section.description} on line {section.index_} of the docstring"
         )
     if not line.startswith(section_prefix):
         return (
-            f"the indentation of line {section.index} of the docstring should match the "
+            f"the indentation of line {section.index_} of the docstring should match the "
             "indentation of the docstring"
         )
     if not line[col_offset:].startswith(f"{section.name}:"):
-        return f'line {section.index} of the docstring should start with "{section.name}:"'
+        return f'line {section.index_} of the docstring should start with "{section.name}:"'
     if not line[col_offset + len(section.name) + 1 :]:
         return (
             f'"{section.name}:" should be followed by a description of the test '
             f"{section.description} on "
-            f"line {section.index} of the docstring"
+            f"line {section.index_} of the docstring"
         )
 
     return None
@@ -195,7 +194,7 @@ def _remaining_description_problem_message(
         The problem message if there is a problem or None and the index of the start index of the
         next section.
     """
-    line_index = section.index + 1
+    line_index = section.index_ + 1
     for line_index in range(line_index, len(docstring_lines)):
         line = docstring_lines[line_index]
 
@@ -219,7 +218,7 @@ def _remaining_description_problem_message(
             return (
                 f"test {section.description} description on line {line_index} should be indented "
                 f'by {indent_size} more spaces than "{section.name}:" on line '
-                f"{section.index}"
+                f"{section.index_}"
             ), line_index
 
     return None, line_index
@@ -258,13 +257,13 @@ def _docstring_problem_message(
     section_index = 1
     for section_name, section_description, next_section_name in sections:
         section = Section(
-            index=section_index,
+            index_=section_index,
             name=section_name,
             description=section_description,
             next_section_name=next_section_name,
         )
         start_problem = _section_start_problem_message(
-            line=docstring_lines[section.index],
+            line=docstring_lines[section.index_],
             section=section,
             col_offset=col_offset,
             section_prefix=section_prefix,
@@ -333,8 +332,9 @@ class Visitor(ast.NodeVisitor):
             node: The FunctionDef node.
         """
         if re.match(self._test_function_pattern, node.name):
+            # need checks to be in one expression so that mypy works
             if (
-                not node.body
+                not node.body  # pylint: disable=too-many-boolean-expressions
                 or not isinstance(node.body, list)
                 or not isinstance(node.body[0], ast.Expr)
                 or not hasattr(node.body[0], "value")

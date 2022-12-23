@@ -2,18 +2,18 @@
 
 import ast
 
-import pytest
 import hypothesis
+import pytest
 from hypothesis import strategies
 
 from flake8_test_docs import (
-    Plugin,
-    MISSING_MSG,
+    ACT_DESCRIPTION,
+    ARRANGE_DESCRIPTION,
+    ASSERT_DESCRIPTION,
     INVALID_CODE,
     INVALID_MSG_POSTFIX,
-    ACT_DESCRIPTION,
-    ASSERT_DESCRIPTION,
-    ARRANGE_DESCRIPTION,
+    MISSING_MSG,
+    Plugin,
 )
 
 
