@@ -6,7 +6,7 @@ import re
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterable, NamedTuple, Optional, List, Tuple, Type
+from typing import Callable, Iterable, List, NamedTuple, Optional, Tuple, Type
 
 from flake8.options.manager import OptionManager
 

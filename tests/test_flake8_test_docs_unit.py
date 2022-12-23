@@ -1,6 +1,7 @@
 """Tests for plugin."""
 
 import ast
+from typing import Tuple
 
 import hypothesis
 import pytest
@@ -17,7 +18,7 @@ from flake8_test_docs import (
 )
 
 
-def _result(code: str, filename: str = "test_.py") -> tuple[str, ...]:
+def _result(code: str, filename: str = "test_.py") -> Tuple[str, ...]:
     """Generate linting results.
 
     Args:
@@ -795,7 +796,7 @@ def function_1():
         ),
     ],
 )
-def test_plugin_invalid(code: str, expected_result: tuple[str, ...]):
+def test_plugin_invalid(code: str, expected_result: Tuple[str, ...]):
     """
     given: code
     when: linting is run on the code
@@ -811,7 +812,7 @@ def test_plugin_invalid(code: str, expected_result: tuple[str, ...]):
         pytest.param("file.py", (), id="not test file"),
     ],
 )
-def test_plugin_filename(filename: str, expected_result: tuple[str, ...]):
+def test_plugin_filename(filename: str, expected_result: Tuple[str, ...]):
     """
     given: code and filename
     when: linting is run on the code
