@@ -26,15 +26,6 @@ jobs:
         run: |
           echo package_name=$(python -c 'import tomllib;from pathlib import Path;print(tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["tool"]["poetry"]["name"])') >> $GITHUB_OUTPUT
           echo package_version=$(python -c 'import tomllib;from pathlib import Path;print(tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["tool"]["poetry"]["version"])') >> $GITHUB_OUTPUT
-  check-constants:
-    name: Constants
-    needs:
-      - constants
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo ${{ needs.constants.outputs.package_name }}
-          echo ${{ needs.constants.outputs.package_version }}
   lint:
     name: Lint
     runs-on: ubuntu-latest
