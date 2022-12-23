@@ -786,6 +786,27 @@ def test_plugin(code: str, expected_result: tuple[str, ...]):
     assert _result(code) == expected_result
 
 
+@pytest.mark.parametrize(
+    "filename, expected_result",
+    [
+        pytest.param("test_.py", (f"2:0 {MISSING_MSG}",), id="test file"),
+        pytest.param("file.py", (), id="not test file"),
+    ],
+)
+def test_plugin_filename(filename: str, expected_result: tuple[str, ...]):
+    """
+    given: code and filename
+    when: linting is run on the code
+    then: the expected result is returned
+    """
+    code = """
+def test_():
+    pass
+"""
+
+    assert _result(code, filename) == expected_result
+
+
 def test_integration_help():
     """
     given:

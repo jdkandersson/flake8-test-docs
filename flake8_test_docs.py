@@ -15,8 +15,6 @@ else:
 
 from flake8.options.manager import OptionManager
 
-from astpretty import pprint
-
 
 ERROR_CODE_PREFIX = next(
     iter(
