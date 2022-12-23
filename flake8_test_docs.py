@@ -200,6 +200,12 @@ def _remaining_description_problem_message(
     for line_index in range(line_index, len(docstring_lines)):
         line = docstring_lines[line_index]
 
+        if not line:
+            return (
+                f"there should not be an empty line in the test {section.description} description "
+                f"on line {line_index} of the docstring"
+            ), line_index
+
         # Detecting the start of the next section
         if _next_section_start(
             line=line,
@@ -207,12 +213,6 @@ def _remaining_description_problem_message(
             expected_section_prefix=expected_section_prefix,
         ):
             break
-
-        if not line:
-            return (
-                f"there should not be an empty line in the test {section.description} description "
-                f"on line {line_index} of the docstring"
-            ), line_index
 
         if not line.startswith(expected_description_prefix) or line[
             len(expected_description_prefix) :

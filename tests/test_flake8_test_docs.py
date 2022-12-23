@@ -175,8 +175,8 @@ def test_():
 line 3"""
 ''',
             (
-                f"3:4 there should only be a single empty line at the start of the docstring, "
-                "found an empty line on line 2"
+                f"3:4 there should not be an empty line in the test {ARRANGE_DESCRIPTION} "
+                "description on line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong newline in description",
@@ -247,8 +247,8 @@ def test_():
 act"""
 ''',
             (
-                "3:4 there should only be a single empty line at the start of the docstring, found "
-                "an empty line on line 2"
+                f"3:4 there should not be an empty line in the test {ARRANGE_DESCRIPTION} "
+                "description on line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act empty line before",
@@ -340,8 +340,8 @@ def test_():
 line 4"""
 ''',
             (
-                "3:4 there should only be a single empty line at the start of the docstring, "
-                "found an empty line on line 3"
+                f"3:4 there should not be an empty line in the test {ACT_DESCRIPTION} description "
+                "on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong newline in description",
@@ -501,8 +501,8 @@ def test_():
 line 5"""
 ''',
             (
-                f"3:4 the indentation of the last line of the docstring at line 4 should match "
-                "the indentation of the docstring"
+                f"3:4 there should not be an empty line in the test {ASSERT_DESCRIPTION} "
+                "description on line 4 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong newline in description",
