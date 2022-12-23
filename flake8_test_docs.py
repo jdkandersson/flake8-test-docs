@@ -10,9 +10,10 @@ from typing import Callable, Iterable, List, NamedTuple, Optional, Tuple, Type
 
 from flake8.options.manager import OptionManager
 
+# One or the other line can't be covered depending on the Python version
 if sys.version_info < (3, 11):  # pragma: nocover
     import toml as tomllib
-else:
+else:  # pragma: nocover
     import tomllib
 
 ERROR_CODE_PREFIX = next(
