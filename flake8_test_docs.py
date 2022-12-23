@@ -6,7 +6,7 @@ import re
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterable, NamedTuple
+from typing import Callable, Iterable, NamedTuple, Optional, List, Tuple, Type
 
 from flake8.options.manager import OptionManager
 
@@ -81,12 +81,12 @@ class Section(NamedTuple):
     index_: int
     name: str
     description: str
-    next_section_name: str | None
+    next_section_name: Optional[str]
 
 
 def _append_invalid_msg_prefix_postfix(
-    func: Callable[..., str | None]
-) -> Callable[..., str | None]:
+    func: Callable[..., Optional[str]]
+) -> Callable[..., Optional[str]]:
     """Add the invalid message postfix to the return value.
 
     Args:
@@ -108,7 +108,7 @@ def _append_invalid_msg_prefix_postfix(
 
 def _section_start_problem_message(
     line: str, section: Section, col_offset: int, section_prefix: str
-) -> str | None:
+) -> Optional[str]:
     """Check the first line of a section.
 
     Args:
@@ -147,7 +147,7 @@ def _section_start_problem_message(
     return None
 
 
-def _next_section_start(line: str, next_section_name: str | None, section_prefix: str) -> bool:
+def _next_section_start(line: str, next_section_name: Optional[str], section_prefix: str) -> bool:
     """Detect whether the line is the start of the next section.
 
     The next section is defined to be either that the line starts with the next section name after
@@ -176,11 +176,11 @@ def _next_section_start(line: str, next_section_name: str | None, section_prefix
 
 def _remaining_description_problem_message(
     section: Section,
-    docstring_lines: list[str],
+    docstring_lines: List[str],
     section_prefix: str,
     description_prefix: str,
     indent_size: int,
-) -> tuple[str | None, int]:
+) -> Tuple[Optional[str], int]:
     """Check the remaining description of a section after the first line.
 
     Args:
@@ -227,7 +227,7 @@ def _remaining_description_problem_message(
 @_append_invalid_msg_prefix_postfix
 def _docstring_problem_message(
     docstring: str, col_offset: int, docs_pattern: DocsPattern, indent_size: int
-) -> str | None:
+) -> Optional[str]:
     """Get the problem message for a docstring.
 
     Args:
@@ -310,7 +310,7 @@ class Visitor(ast.NodeVisitor):
         problems: All the problems that were encountered.
     """
 
-    problems: list[Problem]
+    problems: List[Problem]
     _test_docs_pattern: DocsPattern
     _test_function_pattern: str
     _indent_size: int
@@ -471,7 +471,7 @@ class Plugin:
         )
         cls._indent_size = options.indent_size or cls._indent_size
 
-    def run(self) -> Iterable[tuple[int, int, str, type["Plugin"]]]:
+    def run(self) -> Iterable[Tuple[int, int, str, Type["Plugin"]]]:
         """Lint a file.
 
         Yields:
