@@ -1,4 +1,4 @@
-"""A linter that checks test docstrings for the arrange/act/assert or given/when/then structure."""
+"""A linter that checks test docstrings for the arrange/act/assert structure."""
 
 import argparse
 import ast
@@ -362,7 +362,7 @@ class Visitor(ast.NodeVisitor):
 
 
 class Plugin:
-    """Checks test docstrings for the arrange/act/assert or given/when/then structure.
+    """Checks test docstrings for the arrange/act/assert structure.
 
     Attrs:
         name: The name of the plugin.
