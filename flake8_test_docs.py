@@ -26,7 +26,8 @@ ERROR_CODE_PREFIX = next(
 MORE_INFO_BASE = "more information: https://github.com/jdkandersson/flake8-test-docs"
 MISSING_CODE = f"{ERROR_CODE_PREFIX}001"
 MISSING_MSG = (
-    f"Docstring not defined on test function, {MORE_INFO_BASE}#fix-{MISSING_CODE.lower()}"
+    f"{MISSING_CODE} Docstring not defined on test function, "
+    f"{MORE_INFO_BASE}#fix-{MISSING_CODE.lower()}"
 )
 INVALID_CODE = f"{ERROR_CODE_PREFIX}002"
 INVALID_MSG_POSTFIX = f", {MORE_INFO_BASE}#fix-{INVALID_CODE.lower()}"
@@ -84,7 +85,9 @@ class Section(NamedTuple):
     next_section_name: str | None
 
 
-def _append_invalid_msg_postfix(func: Callable[..., str | None]) -> Callable[..., str | None]:
+def _append_invalid_msg_prefix_postfix(
+    func: Callable[..., str | None]
+) -> Callable[..., str | None]:
     """Add the invalid message postfix to the return value.
 
     Args:
@@ -99,7 +102,7 @@ def _append_invalid_msg_postfix(func: Callable[..., str | None]) -> Callable[...
         """Wrap the function."""
         if (return_value := func(*args, **kwargs)) is None:
             return None
-        return f"{return_value}{INVALID_MSG_POSTFIX}"
+        return f"{INVALID_CODE} {return_value}{INVALID_MSG_POSTFIX}"
 
     return wrapper
 
@@ -226,7 +229,7 @@ def _remaining_description_problem_message(
     return None, line_index
 
 
-@_append_invalid_msg_postfix
+@_append_invalid_msg_prefix_postfix
 def _docstring_problem_message(
     docstring: str, col_offset: int, docs_pattern: DocsPattern
 ) -> str | None:
@@ -453,7 +456,7 @@ class Plugin:
         Yields:
             All the issues that were found.
         """
-        if not re.match(self._test_docs_filename_pattern, self._filename):
+        if not re.match(self._test_docs_filename_pattern, Path(self._filename).name):
             return
 
         visitor = Visitor(self._test_docs_pattern, self._test_docs_function_pattern)

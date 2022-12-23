@@ -9,11 +9,10 @@ import pytest
 
 from flake8_test_docs import (
     Plugin,
-    TEST_DOCS_PATTERN_ARG_NAME,
-    TEST_DOCS_FILENAME_PATTERN_ARG_NAME,
-    TEST_DOCS_FUNCTION_PATTERN_ARG_NAME,
-    INVALID_MSG_POSTFIX,
     MISSING_MSG,
+    MISSING_CODE,
+    INVALID_CODE,
+    INVALID_MSG_POSTFIX,
     ACT_DESCRIPTION,
     ASSERT_DESCRIPTION,
     ARRANGE_DESCRIPTION,
@@ -60,7 +59,7 @@ class TestSuite:
 def test_():
     """"""
 ''',
-            (f"3:4 the docstring should not be empty{INVALID_MSG_POSTFIX}",),
+            (f"3:4 {INVALID_CODE} the docstring should not be empty{INVALID_MSG_POSTFIX}",),
             id="invalid docstring empty",
         ),
         pytest.param(
@@ -69,7 +68,7 @@ class TestSuite:
     def test_():
         """"""
 ''',
-            (f"4:8 the docstring should not be empty{INVALID_MSG_POSTFIX}",),
+            (f"4:8 {INVALID_CODE} the docstring should not be empty{INVALID_MSG_POSTFIX}",),
             id="invalid docstring empty deeper nesting",
         ),
         pytest.param(
@@ -77,7 +76,10 @@ class TestSuite:
 def test_():
     """arrange"""
 ''',
-            (f"3:4 the docstring should start with an empty line{INVALID_MSG_POSTFIX}",),
+            (
+                f"3:4 {INVALID_CODE} the docstring should start with an empty line"
+                f"{INVALID_MSG_POSTFIX}",
+            ),
             id="invalid docstring not empty start line",
         ),
         pytest.param(
@@ -87,7 +89,7 @@ def test_():
     """
 ''',
             (
-                '3:4 the docstring should include "arrange" describing the test '
+                f'3:4 {INVALID_CODE} the docstring should include "arrange" describing the test '
                 f"{ARRANGE_DESCRIPTION} on line 1 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
@@ -100,8 +102,8 @@ def test_():
 arrange"""
 ''',
             (
-                "3:4 the indentation of line 1 of the docstring should match the indentation of "
-                "the docstring"
+                f"3:4 {INVALID_CODE} the indentation of line 1 of the docstring should match the "
+                "indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong column offset",
@@ -114,8 +116,8 @@ def test_():
 arrange"""
 ''',
             (
-                "3:4 there should only be a single empty line at the start of the docstring, "
-                "found an empty line on line 1"
+                f"3:4 {INVALID_CODE} there should only be a single empty line at the start of "
+                "the docstring, found an empty line on line 1"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange extra new line",
@@ -129,8 +131,8 @@ def test_():
 arrange"""
 ''',
             (
-                "3:4 there should only be a single empty line at the start of the docstring, "
-                "found an empty line on line 1"
+                f"3:4 {INVALID_CODE} there should only be a single empty line at the start of the "
+                "docstring, found an empty line on line 1"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange many extra new line",
@@ -141,7 +143,10 @@ def test_():
     """
     given arrange"""
 ''',
-            (f'3:4 line 1 of the docstring should start with "arrange:"{INVALID_MSG_POSTFIX}',),
+            (
+                f'3:4 {INVALID_CODE} line 1 of the docstring should start with "arrange:"'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
             id="invalid docstring arrange wrong word",
         ),
         pytest.param(
@@ -150,7 +155,10 @@ def test_():
     """
     arrange"""
 ''',
-            (f'3:4 line 1 of the docstring should start with "arrange:"{INVALID_MSG_POSTFIX}',),
+            (
+                f'3:4 {INVALID_CODE} line 1 of the docstring should start with "arrange:"'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
             id="invalid docstring arrange missing colon",
         ),
         pytest.param(
@@ -160,7 +168,7 @@ def test_():
     arrange:"""
 ''',
             (
-                '3:4 "arrange:" should be followed by a description of the test '
+                f'3:4 {INVALID_CODE} "arrange:" should be followed by a description of the test '
                 f"{ARRANGE_DESCRIPTION} on line 1 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
@@ -175,8 +183,8 @@ def test_():
 line 3"""
 ''',
             (
-                f"3:4 there should not be an empty line in the test {ARRANGE_DESCRIPTION} "
-                "description on line 2 of the docstring"
+                f"3:4 {INVALID_CODE} there should not be an empty line in the test "
+                f"{ARRANGE_DESCRIPTION} description on line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong newline in description",
@@ -189,8 +197,8 @@ def test_():
 line 2"""
 ''',
             (
-                f"3:4 test {ARRANGE_DESCRIPTION} description on line 2 should be indented by 4 "
-                'more spaces than "arrange:" on line 1'
+                f"3:4 {INVALID_CODE} test {ARRANGE_DESCRIPTION} description on line 2 should be "
+                'indented by 4 more spaces than "arrange:" on line 1'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong multiline at start",
@@ -203,8 +211,8 @@ def test_():
             line 2"""
 ''',
             (
-                f"3:4 test {ARRANGE_DESCRIPTION} description on line 2 should be indented by 4 "
-                'more spaces than "arrange:" on line 1'
+                f"3:4 {INVALID_CODE} test {ARRANGE_DESCRIPTION} description on line 2 should be "
+                'indented by 4 more spaces than "arrange:" on line 1'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong multiline past column offset + 4",
@@ -218,8 +226,8 @@ def test_():
 line 3"""
 ''',
             (
-                f"3:4 test {ARRANGE_DESCRIPTION} description on line 3 should be indented by 4 "
-                'more spaces than "arrange:" on line 1'
+                f"3:4 {INVALID_CODE} test {ARRANGE_DESCRIPTION} description on line 3 should be "
+                'indented by 4 more spaces than "arrange:" on line 1'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring arrange wrong many lines at start",
@@ -232,8 +240,8 @@ def test_():
     """
 ''',
             (
-                f'3:4 the docstring should include "act" describing the test {ACT_DESCRIPTION} on '
-                "line 2 of the docstring"
+                f'3:4 {INVALID_CODE} the docstring should include "act" describing the test '
+                f"{ACT_DESCRIPTION} on line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act missing",
@@ -247,8 +255,8 @@ def test_():
 act"""
 ''',
             (
-                f"3:4 there should not be an empty line in the test {ARRANGE_DESCRIPTION} "
-                "description on line 2 of the docstring"
+                f"3:4 {INVALID_CODE} there should not be an empty line in the test "
+                f"{ARRANGE_DESCRIPTION} description on line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act empty line before",
@@ -261,8 +269,8 @@ def test_():
 act"""
 ''',
             (
-                "3:4 the indentation of line 2 of the docstring should match the indentation of "
-                "the docstring"
+                f"3:4 {INVALID_CODE} the indentation of line 2 of the docstring should match the "
+                "indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong column offset",
@@ -276,8 +284,8 @@ def test_():
 act"""
 ''',
             (
-                "3:4 the indentation of line 3 of the docstring should match the indentation of "
-                "the docstring"
+                f"3:4 {INVALID_CODE} the indentation of line 3 of the docstring should match the "
+                "indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong column offset arrange multi line",
@@ -290,8 +298,8 @@ def test_():
     when"""
 ''',
             (
-                f'3:4 the docstring should include "act" describing the test {ACT_DESCRIPTION} on '
-                "line 2 of the docstring"
+                f'3:4 {INVALID_CODE} the docstring should include "act" describing the test '
+                f"{ACT_DESCRIPTION} on line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong word",
@@ -303,7 +311,10 @@ def test_():
     arrange: line 1
     when act"""
 ''',
-            (f'3:4 line 2 of the docstring should start with "act:"{INVALID_MSG_POSTFIX}',),
+            (
+                f'3:4 {INVALID_CODE} line 2 of the docstring should start with "act:"'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
             id="invalid docstring act wrong start",
         ),
         pytest.param(
@@ -313,7 +324,10 @@ def test_():
     arrange: line 1
     act"""
 ''',
-            (f'3:4 line 2 of the docstring should start with "act:"{INVALID_MSG_POSTFIX}',),
+            (
+                f'3:4 {INVALID_CODE} line 2 of the docstring should start with "act:"'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
             id="invalid docstring act missing colon",
         ),
         pytest.param(
@@ -324,8 +338,8 @@ def test_():
     act:"""
 ''',
             (
-                f'3:4 "act:" should be followed by a description of the test {ACT_DESCRIPTION} on '
-                "line 2 of the docstring"
+                f'3:4 {INVALID_CODE} "act:" should be followed by a description of the test '
+                f"{ACT_DESCRIPTION} on line 2 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act no description",
@@ -340,8 +354,8 @@ def test_():
 line 4"""
 ''',
             (
-                f"3:4 there should not be an empty line in the test {ACT_DESCRIPTION} description "
-                "on line 3 of the docstring"
+                f"3:4 {INVALID_CODE} there should not be an empty line in the test "
+                f"{ACT_DESCRIPTION} description on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong newline in description",
@@ -355,8 +369,8 @@ def test_():
 line 3"""
 ''',
             (
-                f"3:4 test {ACT_DESCRIPTION} description on line 3 should be indented by 4 more "
-                'spaces than "act:" on line 2'
+                f"3:4 {INVALID_CODE} test {ACT_DESCRIPTION} description on line 3 should be "
+                'indented by 4 more spaces than "act:" on line 2'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong multiline at start",
@@ -371,8 +385,8 @@ def test_():
 line 4"""
 ''',
             (
-                f"3:4 test {ACT_DESCRIPTION} description on line 4 should be indented by 4 more "
-                'spaces than "act:" on line 2'
+                f"3:4 {INVALID_CODE} test {ACT_DESCRIPTION} description on line 4 should be "
+                'indented by 4 more spaces than "act:" on line 2'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring act wrong many lines at start",
@@ -386,7 +400,7 @@ def test_():
     """
 ''',
             (
-                '3:4 the docstring should include "assert" describing the test '
+                f'3:4 {INVALID_CODE} the docstring should include "assert" describing the test '
                 f"{ASSERT_DESCRIPTION} on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
@@ -401,8 +415,8 @@ def test_():
 assert"""
 ''',
             (
-                "3:4 the indentation of line 3 of the docstring should match the indentation of "
-                "the docstring"
+                f"3:4 {INVALID_CODE} the indentation of line 3 of the docstring should match the "
+                "indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert empty line before",
@@ -416,8 +430,8 @@ def test_():
 assert"""
 ''',
             (
-                "3:4 the indentation of line 3 of the docstring should match the indentation of "
-                "the docstring"
+                f"3:4 {INVALID_CODE} the indentation of line 3 of the docstring should match the "
+                "indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong column offset",
@@ -432,8 +446,8 @@ def test_():
 assert"""
 ''',
             (
-                "3:4 the indentation of line 4 of the docstring should match the indentation of "
-                "the docstring"
+                f"3:4 {INVALID_CODE} the indentation of line 4 of the docstring should match the "
+                "indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong column offset act multi line",
@@ -447,7 +461,7 @@ def test_():
     then"""
 ''',
             (
-                '3:4 the docstring should include "assert" describing the test '
+                f'3:4 {INVALID_CODE} the docstring should include "assert" describing the test '
                 f"{ASSERT_DESCRIPTION} on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
@@ -461,7 +475,10 @@ def test_():
     act: line 2
     then assert"""
 ''',
-            (f'3:4 line 3 of the docstring should start with "assert:"{INVALID_MSG_POSTFIX}',),
+            (
+                f'3:4 {INVALID_CODE} line 3 of the docstring should start with "assert:"'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
             id="invalid docstring assert wrong start",
         ),
         pytest.param(
@@ -472,7 +489,10 @@ def test_():
     act: line 2
     assert"""
 ''',
-            (f'3:4 line 3 of the docstring should start with "assert:"{INVALID_MSG_POSTFIX}',),
+            (
+                f'3:4 {INVALID_CODE} line 3 of the docstring should start with "assert:"'
+                f"{INVALID_MSG_POSTFIX}",
+            ),
             id="invalid docstring assert missing colon",
         ),
         pytest.param(
@@ -484,7 +504,7 @@ def test_():
     assert:"""
 ''',
             (
-                '3:4 "assert:" should be followed by a description of the test '
+                f'3:4 {INVALID_CODE} "assert:" should be followed by a description of the test '
                 f"{ASSERT_DESCRIPTION} on line 3 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
@@ -501,8 +521,8 @@ def test_():
 line 5"""
 ''',
             (
-                f"3:4 there should not be an empty line in the test {ASSERT_DESCRIPTION} "
-                "description on line 4 of the docstring"
+                f"3:4 {INVALID_CODE} there should not be an empty line in the test "
+                f"{ASSERT_DESCRIPTION} description on line 4 of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong newline in description",
@@ -517,8 +537,8 @@ def test_():
 line 4"""
 ''',
             (
-                f"3:4 test {ASSERT_DESCRIPTION} description on line 4 should be indented by 4 "
-                'more spaces than "assert:" on line 3'
+                f"3:4 {INVALID_CODE} test {ASSERT_DESCRIPTION} description on line 4 should be "
+                'indented by 4 more spaces than "assert:" on line 3'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong multiline at start",
@@ -533,8 +553,8 @@ def test_():
     line 4"""
 ''',
             (
-                "3:4 the indentation of the last line of the docstring at line 4 should match "
-                "the indentation of the docstring"
+                f"3:4 {INVALID_CODE} the indentation of the last line of the docstring at line 4 "
+                "should match the indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong multiline at docstring column offset",
@@ -550,8 +570,8 @@ def test_():
 line 5"""
 ''',
             (
-                f"3:4 test {ASSERT_DESCRIPTION} description on line 5 should be indented by 4 "
-                'more spaces than "assert:" on line 3'
+                f"3:4 {INVALID_CODE} test {ASSERT_DESCRIPTION} description on line 5 should be "
+                'indented by 4 more spaces than "assert:" on line 3'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong many lines at start",
@@ -567,8 +587,8 @@ def test_():
     line 5"""
 ''',
             (
-                "3:4 the indentation of the last line of the docstring at line 5 should match "
-                "the indentation of the docstring"
+                f"3:4 {INVALID_CODE} the indentation of the last line of the docstring at line 5 "
+                "should match the indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring assert wrong many lines at docstring column offset",
@@ -583,8 +603,8 @@ def test_():
 """
 ''',
             (
-                "3:4 the indentation of the last line of the docstring at line 4 should match "
-                "the indentation of the docstring"
+                f"3:4 {INVALID_CODE} the indentation of the last line of the docstring at line 4 "
+                "should match the indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring empty newline at end",
@@ -599,8 +619,8 @@ def test_():
  """
 ''',
             (
-                "3:4 the indentation of the last line of the docstring at line 4 should match "
-                "the indentation of the docstring"
+                f"3:4 {INVALID_CODE} the indentation of the last line of the docstring at line 4 "
+                "should match the indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring single space newline at end",
@@ -615,8 +635,8 @@ def test_():
    """
 ''',
             (
-                "3:4 the indentation of the last line of the docstring at line 4 should match "
-                "the indentation of the docstring"
+                f"3:4 {INVALID_CODE} the indentation of the last line of the docstring at line 4 "
+                "should match the indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring ending wrong indent just left",
@@ -631,8 +651,8 @@ def test_():
      """
 ''',
             (
-                f"3:4 test {ASSERT_DESCRIPTION} description on line 4 should be indented by 4 "
-                'more spaces than "assert:" on line 3'
+                f"3:4 {INVALID_CODE} test {ASSERT_DESCRIPTION} description on line 4 should be "
+                'indented by 4 more spaces than "assert:" on line 3'
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring ending wrong indent just right",
@@ -647,8 +667,8 @@ def test_():
         """
 ''',
             (
-                "3:4 the indentation of the last line of the docstring at line 4 should match "
-                "the indentation of the docstring"
+                f"3:4 {INVALID_CODE} the indentation of the last line of the docstring at line 4 "
+                "should match the indentation of the docstring"
                 f"{INVALID_MSG_POSTFIX}",
             ),
             id="invalid docstring ending wrong indent right",
@@ -777,7 +797,7 @@ def function_1():
         ),
     ],
 )
-def test_plugin(code: str, expected_result: tuple[str, ...]):
+def test_plugin_invalid(code: str, expected_result: tuple[str, ...]):
     """
     given: code
     when: linting is run on the code
@@ -805,36 +825,3 @@ def test_():
 """
 
     assert _result(code, filename) == expected_result
-
-
-def test_integration_help():
-    """
-    given:
-    when: the flake8 help message is generated
-    then: plugin is registered with flake8
-    """
-    with subprocess.Popen(
-        f"{sys.executable} -m flake8 --help",
-        stdout=subprocess.PIPE,
-        shell=True,
-    ) as proc:
-        stdout = proc.communicate()[0].decode(encoding="utf-8")
-
-        assert "flake8-test-docs" in stdout
-        assert TEST_DOCS_PATTERN_ARG_NAME in stdout
-        assert TEST_DOCS_FILENAME_PATTERN_ARG_NAME in stdout
-        assert TEST_DOCS_FUNCTION_PATTERN_ARG_NAME in stdout
-
-
-def create_code_file(code: str, base_path: Path) -> Path:
-    """Create the code file with the given code.
-
-    Args:
-        code: The code to write to the file.
-        base_path: The path to create the file within
-
-    Returns:
-        The path to the code file.
-    """
-    (code_file := base_path / "code.py").write_text(f'"""Docstring."""\n\n{code}')
-    return code_file
