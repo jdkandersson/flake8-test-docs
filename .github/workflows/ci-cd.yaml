@@ -95,7 +95,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run check
         run: |
-          python -m pip install flake8 ${{ needs.constants.outputs.package_name }}==${{ needs.constants.outputs.package_version }} --extra-index-url https://test.pypi.org/simple/
+          for i in 1 2 3 4 5; do python -m pip install flake8 ${{ needs.constants.outputs.package_name }}==${{ needs.constants.outputs.package_version }} --extra-index-url https://test.pypi.org/simple/ && break || sleep 10; done
           echo '"""Docstring."""' > test_.py
           flake8 test_.py
   release-pypi:
@@ -161,6 +161,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run check
         run: |
-          python -m pip install flake8 ${{ needs.constants.outputs.package_name }}==${{ needs.constants.outputs.package_version }}
+          for i in 1 2 3 4 5; do python -m pip install flake8 ${{ needs.constants.outputs.package_name }}==${{ needs.constants.outputs.package_version }} && break || sleep 10; done
           echo '"""Docstring."""' > test_.py
           flake8 test_.py
