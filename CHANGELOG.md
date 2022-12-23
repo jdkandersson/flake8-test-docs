@@ -2,11 +2,11 @@
 
 ## [Unreleased]
 
-## [v1.0.4] - 2022-12-23
+## [v1.0.5] - 2022-12-23
 
 ### Fixed
 
-- Fix incorrect toml package name for Python 3.10 and earlier
+- Remove dependency on presence of `pyproject.toml` file
 
 ## [v1.0.0] - 2022-12-23
 
@@ -22,4 +22,4 @@
 
 [//]: # "Release links"
 [v1.0.0]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.0
-[v1.0.4]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.4
+[v1.0.5]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.5
