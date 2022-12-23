@@ -121,7 +121,10 @@ def _check_section_start(
         The problem description if the line has problems or None.
     """
     if not line:
-        return "there should only be a single empty line at the start of the docstring"
+        return (
+            "there should only be a single empty line at the start of the docstring, found an "
+            f"empty line on line {section.index}"
+        )
     if section.name not in line:
         return (
             f'the docstring should include "{section.name}" describing the test '
@@ -167,6 +170,9 @@ def _next_section_start(
         Whether the line is the start of the next section.
     """
     if next_section_name is not None and line.strip().startswith(next_section_name):
+        return True
+
+    if len(line) < len(expected_section_prefix) and line.count(" ") == len(line):
         return True
 
     if line.startswith(expected_section_prefix) and not line[
