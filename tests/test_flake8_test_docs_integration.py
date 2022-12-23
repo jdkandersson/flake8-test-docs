@@ -179,6 +179,22 @@ def test_():
             "",
             id=f"{INVALID_CODE} disabled",
         ),
+        pytest.param(
+            '''
+def test_():
+  """
+  arrange: line 1
+    line 2
+  act: line 3
+    line 4
+  assert: line 5
+    line 6
+  """
+''',
+            "test_.py",
+            "--indent-size 2",
+            id="changed indentation",
+        ),
     ],
 )
 def test_integration_pass(code: str, filename: str, extra_args: str, tmp_path: Path):

@@ -108,7 +108,7 @@ def _append_invalid_msg_prefix_postfix(
 
 
 def _section_start_problem_message(
-    line: str, section: Section, col_offset: int, expected_section_prefix: str
+    line: str, section: Section, col_offset: int, section_prefix: str
 ) -> str | None:
     """Check the first line of a section.
 
@@ -116,7 +116,7 @@ def _section_start_problem_message(
         line: The line to check
         section: Information about the section.
         col_offset: The column offset where the docstring definition starts.
-        expected_section_prefix: The prefix expected at the start of a section.
+        section_prefix: The prefix expected at the start of a section.
 
     Returns:
         The problem description if the line has problems or None.
@@ -131,7 +131,7 @@ def _section_start_problem_message(
             f'the docstring should include "{section.name}" describing the test '
             f"{section.description} on line {section.index} of the docstring"
         )
-    if not line.startswith(expected_section_prefix):
+    if not line.startswith(section_prefix):
         return (
             f"the indentation of line {section.index} of the docstring should match the "
             "indentation of the docstring"
@@ -148,9 +148,7 @@ def _section_start_problem_message(
     return None
 
 
-def _next_section_start(
-    line: str, next_section_name: str | None, expected_section_prefix: str
-) -> bool:
+def _next_section_start(line: str, next_section_name: str | None, section_prefix: str) -> bool:
     """Detect whether the line is the start of the next section.
 
     The next section is defined to be either that the line starts with the next section name after
@@ -160,7 +158,7 @@ def _next_section_start(
     Args:
         line: The line to check.
         next_section_name: The name of the next section or None if it is the last section.
-        expected_section_prefix: The prefix expected at the start of a section.
+        section_prefix: The prefix expected at the start of a section.
 
     Returns:
         Whether the line is the start of the next section.
@@ -168,12 +166,10 @@ def _next_section_start(
     if next_section_name is not None and line.strip().startswith(next_section_name):
         return True
 
-    if len(line) < len(expected_section_prefix) and line.count(" ") == len(line):
+    if len(line) < len(section_prefix) and line.count(" ") == len(line):
         return True
 
-    if line.startswith(expected_section_prefix) and not line[
-        len(expected_section_prefix) :
-    ].startswith(" "):
+    if line.startswith(section_prefix) and not line[len(section_prefix) :].startswith(" "):
         return True
 
     return False
@@ -182,18 +178,18 @@ def _next_section_start(
 def _remaining_description_problem_message(
     section: Section,
     docstring_lines: list[str],
-    expected_section_prefix: str,
-    expected_description_prefix: str,
-    expected_indentation: int,
+    section_prefix: str,
+    description_prefix: str,
+    indent_size: int,
 ) -> tuple[str | None, int]:
     """Check the remaining description of a section after the first line.
 
     Args:
         section: Information about the section.
         docstring_lines: All the lines of the docstring.
-        expected_section_prefix: The prefix expected at the start of a section.
-        expected_description_prefix: The prefix expected at the start of description line.
-        expected_indentation: The number of indentation characters.
+        section_prefix: The prefix expected at the start of a section.
+        description_prefix: The prefix expected at the start of description line.
+        indent_size: The number of indentation characters.
 
     Returns:
         The problem message if there is a problem or None and the index of the start index of the
@@ -213,16 +209,16 @@ def _remaining_description_problem_message(
         if _next_section_start(
             line=line,
             next_section_name=section.next_section_name,
-            expected_section_prefix=expected_section_prefix,
+            section_prefix=section_prefix,
         ):
             break
 
-        if not line.startswith(expected_description_prefix) or line[
-            len(expected_description_prefix) :
-        ].startswith(" "):
+        if not line.startswith(description_prefix) or line[len(description_prefix) :].startswith(
+            " "
+        ):
             return (
                 f"test {section.description} description on line {line_index} should be indented "
-                f'by {expected_indentation} more spaces than "{section.name}:" on line '
+                f'by {indent_size} more spaces than "{section.name}:" on line '
                 f"{section.index}"
             ), line_index
 
@@ -231,7 +227,7 @@ def _remaining_description_problem_message(
 
 @_append_invalid_msg_prefix_postfix
 def _docstring_problem_message(
-    docstring: str, col_offset: int, docs_pattern: DocsPattern
+    docstring: str, col_offset: int, docs_pattern: DocsPattern, indent_size: int
 ) -> str | None:
     """Get the problem message for a docstring.
 
@@ -239,6 +235,7 @@ def _docstring_problem_message(
         docstring: The docstring to check.
         col_offset: The column offset where the docstring definition starts.
         docs_pattern: The pattern the docstring should follow.
+        indent_size: The number of indentation characters.
 
     Returns:
         The problem message explaining what is wrong with the docstring or None if it is valid.
@@ -250,9 +247,8 @@ def _docstring_problem_message(
         return "the docstring should start with an empty line"
 
     docstring_lines = docstring.splitlines()
-    expected_section_prefix = " " * col_offset
-    expected_indentation = 4
-    expected_description_prefix = f"{expected_section_prefix}{' ' * expected_indentation}"
+    section_prefix = " " * col_offset
+    description_prefix = f"{section_prefix}{' ' * indent_size}"
 
     sections = zip(
         docs_pattern,
@@ -271,24 +267,21 @@ def _docstring_problem_message(
             line=docstring_lines[section.index],
             section=section,
             col_offset=col_offset,
-            expected_section_prefix=expected_section_prefix,
+            section_prefix=section_prefix,
         )
         if start_problem is not None:
             return start_problem
         description_problem, section_index = _remaining_description_problem_message(
             section=section,
             docstring_lines=docstring_lines,
-            expected_section_prefix=expected_section_prefix,
-            expected_description_prefix=expected_description_prefix,
-            expected_indentation=expected_indentation,
+            section_prefix=section_prefix,
+            description_prefix=description_prefix,
+            indent_size=indent_size,
         )
         if description_problem is not None:
             return description_problem
 
-    if (
-        len(docstring_lines) <= section_index
-        or docstring_lines[section_index] != expected_section_prefix
-    ):
+    if len(docstring_lines) <= section_index or docstring_lines[section_index] != section_prefix:
         return (
             f"the indentation of the last line of the docstring at line {section_index} should "
             "match the indentation of the docstring"
@@ -321,12 +314,16 @@ class Visitor(ast.NodeVisitor):
     problems: list[Problem]
     _test_docs_pattern: DocsPattern
     _test_function_pattern: str
+    _indent_size: int
 
-    def __init__(self, test_docs_pattern: DocsPattern, test_function_pattern: str) -> None:
+    def __init__(
+        self, test_docs_pattern: DocsPattern, test_function_pattern: str, indent_size: int
+    ) -> None:
         """Construct."""
         self.problems = []
         self._test_docs_pattern = test_docs_pattern
         self._test_function_pattern = test_function_pattern
+        self._indent_size = indent_size
 
     # The function must be called the same as the name of the node
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # pylint: disable=invalid-name
@@ -350,6 +347,7 @@ class Visitor(ast.NodeVisitor):
                     node.body[0].value.value,
                     node.body[0].value.col_offset,
                     self._test_docs_pattern,
+                    indent_size=self._indent_size,
                 ):
                     self.problems.append(
                         Problem(
@@ -378,6 +376,7 @@ class Plugin:
     _test_docs_pattern: DocsPattern = DocsPattern(*TEST_DOCS_PATTERN_DEFAULT.split("/"))
     _test_docs_filename_pattern: str = TEST_DOCS_FILENAME_PATTERN_DEFAULT
     _test_docs_function_pattern: str = TEST_DOCS_FUNCTION_PATTERN_DEFAULT
+    _indent_size: int = 4
     _filename: str
 
     def __init__(self, tree: ast.AST, filename: str) -> None:
@@ -470,6 +469,7 @@ class Plugin:
             getattr(options, _cli_arg_name_to_attr(TEST_DOCS_FUNCTION_PATTERN_ARG_NAME), None)
             or cls._test_docs_function_pattern
         )
+        cls._indent_size = options.indent_size or cls._indent_size
 
     def run(self) -> Iterable[tuple[int, int, str, type["Plugin"]]]:
         """Lint a file.
@@ -480,7 +480,9 @@ class Plugin:
         if not re.match(self._test_docs_filename_pattern, Path(self._filename).name):
             return
 
-        visitor = Visitor(self._test_docs_pattern, self._test_docs_function_pattern)
+        visitor = Visitor(
+            self._test_docs_pattern, self._test_docs_function_pattern, self._indent_size
+        )
         visitor.visit(self._tree)
         yield from (
             (problem.lineno, problem.col_offset, problem.msg, type(self))
