@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v1.0.1] - 2022-12-23
+
+- Fix missing toml dependency for Python 3.10 and earlier
+
 ## [v1.0.0] - 2022-12-23
 
 ### Added
@@ -16,3 +20,4 @@
 
 [//]: # "Release links"
 [v1.0.0]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.0
+[v1.0.1]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.1
