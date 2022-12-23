@@ -12,7 +12,7 @@ from flake8.options.manager import OptionManager
 
 # One or the other line can't be covered depending on the Python version
 if sys.version_info < (3, 11):  # pragma: nocover
-    import toml as tomllib
+    import tomli as tomllib
 else:  # pragma: nocover
     import tomllib
 
