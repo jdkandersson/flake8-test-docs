@@ -214,3 +214,23 @@ def test_integration_pass(code: str, filename: str, extra_args: str, tmp_path: P
 
         assert not stdout, stdout
         assert not proc.returncode
+
+
+def test_integration_self():
+    """
+    given: working linter
+    when: the flake8 is run against the tests of the linter
+    then: the process exits with zero code and empty stdout
+    """
+    with subprocess.Popen(
+        (
+            f"{sys.executable} -m flake8 tests/ --test-docs-pattern given/when/then "
+            "--ignore D205,D400,D103"
+        ),
+        stdout=subprocess.PIPE,
+        shell=True,
+    ) as proc:
+        stdout = proc.communicate()[0].decode(encoding="utf-8")
+
+        assert not stdout, stdout
+        assert not proc.returncode
