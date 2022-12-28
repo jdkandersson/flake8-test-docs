@@ -1,11 +1,13 @@
 """A linter that checks test docstrings for the arrange/act/assert structure."""
 
+from __future__ import annotations
+
 import argparse
 import ast
 import re
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterable, List, NamedTuple, Optional, Tuple, Type
+from typing import Callable, Iterable, NamedTuple
 
 from flake8.options.manager import OptionManager
 
@@ -71,12 +73,12 @@ class Section(NamedTuple):
     index_: int
     name: str
     description: str
-    next_section_name: Optional[str]
+    next_section_name: str | None
 
 
 def _append_invalid_msg_prefix_postfix(
-    func: Callable[..., Optional[str]]
-) -> Callable[..., Optional[str]]:
+    func: Callable[..., str | None]
+) -> Callable[..., str | None]:
     """Add the code prefix and invalid message postfix to the return value.
 
     Args:
@@ -87,7 +89,7 @@ def _append_invalid_msg_prefix_postfix(
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> str | None:
         """Wrap the function."""
         if (return_value := func(*args, **kwargs)) is None:
             return None
@@ -98,7 +100,7 @@ def _append_invalid_msg_prefix_postfix(
 
 def _section_start_problem_message(
     line: str, section: Section, col_offset: int, section_prefix: str
-) -> Optional[str]:
+) -> str | None:
     """Check the first line of a section.
 
     Args:
@@ -136,7 +138,7 @@ def _section_start_problem_message(
     return None
 
 
-def _next_section_start(line: str, next_section_name: Optional[str], section_prefix: str) -> bool:
+def _next_section_start(line: str, next_section_name: str | None, section_prefix: str) -> bool:
     """Detect whether the line is the start of the next section.
 
     The next section is defined to be either that the line starts with the next section name after
@@ -165,11 +167,11 @@ def _next_section_start(line: str, next_section_name: Optional[str], section_pre
 
 def _remaining_description_problem_message(
     section: Section,
-    docstring_lines: List[str],
+    docstring_lines: list[str],
     section_prefix: str,
     description_prefix: str,
     indent_size: int,
-) -> Tuple[Optional[str], int]:
+) -> tuple[str | None, int]:
     """Check the remaining description of a section after the first line.
 
     Args:
@@ -213,7 +215,7 @@ def _remaining_description_problem_message(
 @_append_invalid_msg_prefix_postfix
 def _docstring_problem_message(
     docstring: str, col_offset: int, docs_pattern: DocsPattern, indent_size: int
-) -> Optional[str]:
+) -> str | None:
     """Get the problem message for a docstring.
 
     Args:
@@ -296,7 +298,7 @@ class Visitor(ast.NodeVisitor):
         problems: All the problems that were encountered.
     """
 
-    problems: List[Problem]
+    problems: list[Problem]
     _test_docs_pattern: DocsPattern
     _test_function_pattern: str
     _indent_size: int
@@ -456,7 +458,7 @@ class Plugin:
             getattr(options, _cli_arg_name_to_attr(INDENT_SIZE_ARN_NAME), None) or cls._indent_size
         )
 
-    def run(self) -> Iterable[Tuple[int, int, str, Type["Plugin"]]]:
+    def run(self) -> Iterable[tuple[int, int, str, type["Plugin"]]]:
         """Lint a file.
 
         Yields:
