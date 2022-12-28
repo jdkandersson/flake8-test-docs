@@ -8,7 +8,7 @@ import re
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterator, NamedTuple
+from typing import Callable, Iterator, NamedTuple, Type
 
 # Can't cover both paths of a conditional import
 if sys.version_info < (3, 10):
@@ -139,7 +139,7 @@ def _section_start_problem_message(
         )
     if not line[col_offset:].startswith(f"{section.name}:"):
         return f'line {section.index_} of the docstring should start with "{section.name}:"'
-    if not line[col_offset + len(section.name) + 1 :]:
+    if not line[col_offset + len(section.name) + 1:]:
         return (
             f'"{section.name}:" should be followed by a description of the test '
             f"{section.description} on line {section.index_} of the docstring"
@@ -169,7 +169,7 @@ def _next_section_start(line: str, next_section_name: str | None, section_prefix
     if len(line) < len(section_prefix) and line.count(" ") == len(line):
         return True
 
-    if line.startswith(section_prefix) and not line[len(section_prefix) :].startswith(" "):
+    if line.startswith(section_prefix) and not line[len(section_prefix):].startswith(" "):
         return True
 
     return False
@@ -211,7 +211,7 @@ def _remaining_description_problem_message(
         ):
             break
 
-        if not line.startswith(description_prefix) or line[len(description_prefix) :].startswith(
+        if not line.startswith(description_prefix) or line[len(description_prefix):].startswith(
             " "
         ):
             return (
@@ -468,7 +468,7 @@ class Plugin:
             getattr(options, _cli_arg_name_to_attr(INDENT_SIZE_ARN_NAME), None) or cls._indent_size
         )
 
-    def run(self) -> Iterator[tuple[int, int, str, type["Plugin"]]]:
+    def run(self) -> Iterator[tuple[int, int, str, Type["Plugin"]]]:
         """Lint a file.
 
         Yields:
