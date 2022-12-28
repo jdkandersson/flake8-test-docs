@@ -1,5 +1,7 @@
 """Unit tests for plugin."""
 
+from __future__ import annotations
+
 import ast
 
 import hypothesis

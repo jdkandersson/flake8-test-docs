@@ -8,7 +8,7 @@ import re
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterator, NamedTuple, Type
+from typing import Callable, Iterator, NamedTuple
 
 # Can't cover both paths of a conditional import
 if sys.version_info < (3, 10):
@@ -468,7 +468,7 @@ class Plugin:
             getattr(options, _cli_arg_name_to_attr(INDENT_SIZE_ARN_NAME), None) or cls._indent_size
         )
 
-    def run(self) -> Iterator[tuple[int, int, str, Type["Plugin"]]]:
+    def run(self) -> Iterator[tuple[int, int, str, type["Plugin"]]]:
         """Lint a file.
 
         Yields:
