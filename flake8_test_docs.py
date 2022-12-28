@@ -5,9 +5,16 @@ from __future__ import annotations
 import argparse
 import ast
 import re
+import sys
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterator, NamedTuple, ParamSpec
+from typing import Callable, Iterator, NamedTuple
+
+# Can't cover both paths of a conditional import
+if sys.version_info < (3, 10):
+    from typing_extensions import ParamSpec  # pragma: nocover
+else:
+    from typing import ParamSpec  # pragma: nocover
 
 from flake8.options.manager import OptionManager
 
