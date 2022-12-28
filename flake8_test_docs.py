@@ -7,7 +7,7 @@ import ast
 import re
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Iterable, NamedTuple
+from typing import Callable, Iterator, NamedTuple, ParamSpec
 
 from flake8.options.manager import OptionManager
 
@@ -76,9 +76,12 @@ class Section(NamedTuple):
     next_section_name: str | None
 
 
+AIMPPParamSpec = ParamSpec("AIMPPParamSpec")
+
+
 def _append_invalid_msg_prefix_postfix(
-    func: Callable[..., str | None]
-) -> Callable[..., str | None]:
+    func: Callable[AIMPPParamSpec, str | None]
+) -> Callable[AIMPPParamSpec, str | None]:
     """Add the code prefix and invalid message postfix to the return value.
 
     Args:
@@ -89,7 +92,7 @@ def _append_invalid_msg_prefix_postfix(
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs) -> str | None:
+    def wrapper(*args: AIMPPParamSpec.args, **kwargs: AIMPPParamSpec.kwargs) -> str | None:
         """Wrap the function."""
         if (return_value := func(*args, **kwargs)) is None:
             return None
@@ -458,7 +461,7 @@ class Plugin:
             getattr(options, _cli_arg_name_to_attr(INDENT_SIZE_ARN_NAME), None) or cls._indent_size
         )
 
-    def run(self) -> Iterable[tuple[int, int, str, type["Plugin"]]]:
+    def run(self) -> Iterator[tuple[int, int, str, type["Plugin"]]]:
         """Lint a file.
 
         Yields:
