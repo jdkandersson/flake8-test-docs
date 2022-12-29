@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [v1.0.7] - 2022-12-29
+
+### Fixed
+
+- Corrected default test filename regex to `test_.*\.py` from `test_.*.py`
+  which previously did not correctly escape the `.` before the extension.
+
 ## [v1.0.6] - 2022-12-28
 
 ### Fixed
@@ -30,3 +37,4 @@
 [v1.0.0]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.0
 [v1.0.5]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.5
 [v1.0.6]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.6
+[v1.0.7]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.7

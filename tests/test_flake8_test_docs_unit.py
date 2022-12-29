@@ -811,6 +811,7 @@ def test_plugin_invalid(code: str, expected_result: tuple[str, ...]):
     [
         pytest.param("test_.py", (f"2:0 {MISSING_MSG}",), id="test file"),
         pytest.param("file.py", (), id="not test file"),
+        pytest.param("test_dpy", (), id="not test file missing ."),
     ],
 )
 def test_plugin_filename(filename: str, expected_result: tuple[str, ...]):

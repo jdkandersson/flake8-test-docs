@@ -53,7 +53,7 @@ The plugin adds the following configurations to `flake8`:
 * `--test-docs-patter`: The pattern the test documentation should follow,
   e.g., `given/when/then`. Defaults to `arrange/act/assert`.
 * `--test-docs-filename-pattern`: The filename pattern for test files. Defaults
-  to `test_.*.py`.
+  to `test_.*\.py`.
 * `--test-docs-function-pattern`: The function pattern for test functions.
   Defaults to `test_.*`.
 
