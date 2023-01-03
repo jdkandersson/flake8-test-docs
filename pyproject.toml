@@ -40,6 +40,7 @@ pydocstyle = "^6"
 toml = "^0"
 astpretty = "^3"
 hypothesis = "^6"
+flake8-docstrings-complete = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]

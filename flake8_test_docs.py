@@ -100,7 +100,15 @@ def _append_invalid_msg_prefix_postfix(
 
     @wraps(func)
     def wrapper(*args: AIMPPParamSpec.args, **kwargs: AIMPPParamSpec.kwargs) -> str | None:
-        """Wrap the function."""
+        """Wrap the function.
+
+        Args:
+            args: The function arguments.
+            kwargs: The function kwargs.
+
+        Returns:
+            The function return value with the code and postfix added.
+        """
         if (return_value := func(*args, **kwargs)) is None:
             return None
         return f"{INVALID_CODE} {return_value}{INVALID_MSG_POSTFIX}"
@@ -316,7 +324,13 @@ class Visitor(ast.NodeVisitor):
     def __init__(
         self, test_docs_pattern: DocsPattern, test_function_pattern: str, indent_size: int
     ) -> None:
-        """Construct."""
+        """Construct.
+
+        Args:
+            test_docs_pattern: The pattern to identify test files with.
+            test_function_pattern: The pattern to identify test functions with.
+            indent_size: The number of spaces in indentation.
+        """
         self.problems = []
         self._test_docs_pattern = test_docs_pattern
         self._test_function_pattern = test_function_pattern
@@ -364,7 +378,6 @@ class Plugin:
 
     Attrs:
         name: The name of the plugin.
-        version: The version of the plugin.
     """
 
     name = __name__
