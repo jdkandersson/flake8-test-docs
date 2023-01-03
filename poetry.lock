@@ -279,6 +279,21 @@ flake8 = ">=3"
 pydocstyle = ">=2.1"
 
 [[package]]
+name = "flake8-docstrings-complete"
+version = "1.0.0"
+description = "A linter that checks docstrings are complete"
+category = "dev"
+optional = false
+python-versions = ">=3.8.1,<4.0.0"
+files = [
+    {file = "flake8_docstrings_complete-1.0.0-py3-none-any.whl", hash = "sha256:5562a8df71fd3ff12e283778fbf5440f6641a953214d33809bf06fbdd3440b23"},
+    {file = "flake8_docstrings_complete-1.0.0.tar.gz", hash = "sha256:273ff444aa709612598f0056e071a90dc1f8d9ec7c7713f7130d8c8d7d2fcce5"},
+]
+
+[package.dependencies]
+flake8 = ">=6,<7"
+
+[[package]]
 name = "hypothesis"
 version = "6.61.0"
 description = "A library for property-based testing"
@@ -780,4 +795,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "8848c487562172e05b8cb29268b8652fd5cd13b90d4ceaadf056c7eeb9770c03"
+content-hash = "c483db6b26ca988d5218c405cb2b15580afc6b9eb0bad806cf40c36e2d14eefe"

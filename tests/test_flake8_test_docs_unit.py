@@ -24,6 +24,7 @@ def _result(code: str, filename: str = "test_.py") -> tuple[str, ...]:
 
     Args:
         code: The code to check.
+        filename: The name of the file being checked.
 
     Returns:
         The linting result.
