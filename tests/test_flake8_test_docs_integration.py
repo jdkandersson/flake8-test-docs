@@ -177,7 +177,7 @@ def test_():  # noqa: {MISSING_CODE}
         pytest.param(
             f'''
 def test_():
-    """"""  # noqa: {INVALID_CODE}
+    """"""  # noqa: {INVALID_CODE},D419
 ''',
             "test_.py",
             "",
