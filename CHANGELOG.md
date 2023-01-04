@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.0.8] - 2023-01-04
+
+### Added
+
+- Support for flake8 version 5
+
 ## [v1.0.7] - 2022-12-29
 
 ### Fixed
@@ -38,3 +44,4 @@
 [v1.0.5]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.5
 [v1.0.6]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.6
 [v1.0.7]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.7
+[v1.0.8]: https://github.com/jdkandersson/flake8-test-docs/releases/v1.0.8

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flake8-test-docs"
-version = "1.0.7"
+version = "1.0.8"
 description = "A linter that checks test docstrings for the arrange/act/assert structure"
 authors = ["David Andersson <david@jdkandersson.com>"]
 license = "Apache 2.0"
@@ -15,32 +15,16 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.8",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
 ]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-flake8 = "^6"
+flake8 = ">= 5"
 typing_extensions = { version = "^4", python = "<3.10" }
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7"
-mypy = "^0.991"
-isort = "^5"
-black = "^22"
-coverage = {extras = ["toml"], version = "^6"}
-pytest-cov = "^4"
-flake8-docstrings = "^1"
-flake8-builtins = "^2"
-pep8-naming = "^0"
-codespell = "^2"
-pylint = "^2"
-pydocstyle = "^6"
-toml = "^0"
-astpretty = "^3"
-hypothesis = "^6"
-flake8-docstrings-complete = "^1"
 
 [build-system]
 requires = ["poetry-core"]
